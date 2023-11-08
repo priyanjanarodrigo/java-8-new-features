@@ -1,0 +1,591 @@
+______________________________________________________________________________________________________________________________________
+- Streams -
+--------------------------------------------------------------------------------------------------------------------------------------
+
+* Difference between Collection and Streams
+
+    - Collection :  We can use Collection to represent group of objects as a single entity
+    - Stream     :  We can use streams to process the objects of a Collection (or a source. from an Ayyay ,I/O source)
+
+* java.io.stream and java.util.stream are different. java.io.stream always talks about data where java.util.stream always talks about
+  stream of objects 
+
+
+* If we want to get the stream of some source, stream() method is used.
+    - Example : 
+      
+        ArrayList<Integer> myList = new ArrayList<Integer>();
+        myList.add(2);
+        myList.add(5);
+        myList.add(7);
+
+        Stream s = myList.stream(); // Getting the stream object/ creating the stream
+
+* Stream is an interface present inside java.util.stream package
+
+
+1. filter(Predicae p) method
+========================================================================================================================
+
+* filter(Predicate p) method is used to filter records of a stram based on the condition of the provided Predicate inside.
+  As ususal this Predicate is provided as a lambda expression
+
+* Example : Filetering even numbers of a provided ArrayList
+
+	import java.util.stream.*;
+    import java.util.ArrayList;
+	import java.util.Vector;
+	import java.util.List;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> l = new ArrayList<Integer>();
+            l.add(0);
+            l.add(5);
+            l.add(10);
+            l.add(15);
+            l.add(20);
+            l.add(25);
+
+            System.out.println(l);
+			
+			// Assigning to it self or a List 
+			// l = l.stream().filter(i->i%2==0).collect(Collectors.toList());// Compile error. Has to assign to a List or typecast as an ArrayList
+
+			l = (ArrayList<Integer>)l.stream().filter(i->i%2==0).collect(Collectors.toList());// TypeCasted
+			
+			// Assigned to a List 
+			List<Integer> newList1 = l.stream().filter(i->i%2==0).collect(Collectors.toList());
+			
+
+			// Assigning to another ArrayList
+			// ArrayList newList3 = l.stream().filter(i->i%2==0).collect(Collectors.toList());//Compile Error. Has to type cast
+            ArrayList<Integer> newList2 = (ArrayList<Integer>)l.stream().filter(i->i%2==0).collect(Collectors.toList());
+			
+			
+			//Vector<Integer> newVector = (Vector<Integer>)l.stream().filter(i->i%2==0).collect(Collectors.toList());
+			/*
+				Compile Error
+				Exception in thread "main" java.lang.ClassCastException: java.util.ArrayList cannot be cast to java.util.Vector
+				at Test.main(Test.java:32)
+			*/
+		
+            System.out.println(newList1);
+			System.out.println(newList2);
+			System.out.println(l);
+        }
+    }
+
+* What collect(Collectors.toList()) method does is collecting the filtered elements and return (here it returns a List). 
+  If we are assigning it to a separate ArrayList ro etc, we have to typecast it  
+
+
+2. map(Function f) method
+========================================================================================================================
+
+* If we want to perform some function on the elements and we want some result object, then we should go for map(Function f)
+  method.
+
+* Example : adding additional 5 marks for the existing marks in an ArrayList
+
+    import java.util.stream.*;
+    import java.util.ArrayList;
+    import java.util.List;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> marks = new ArrayList<Integer>();
+            marks.add(5);
+            marks.add(10);
+            marks.add(15);
+            marks.add(20);
+            marks.add(25);
+            System.out.println(marks);
+
+            List<Integer> updatedMarks = marks.stream().map(i->i+5).collect(Collectors.toList());
+            System.out.println(updatedMarks);
+        }
+    }
+
+    - IMPORTATNT -
+    ------------------------------------------------------------------------------------
+
+        * In case of filter(Predicate p) method, assume that
+            - filter(Predicate p)
+                Number of input elements --> 10 elements
+                So the output should be  --> 0 to 10 elements based on predicate / <=10
+
+        * But when it comes to map(Function f) method, assime that
+            - map(Function f)
+                Number of input elements --> 10 elements
+                So the output must be    --> 10 elements
+
+* Upto now recap : 
+
+    stream()                     - To get the stream of the source (ex : ArrayList)
+    filter(Predicate p)          - To filter results based on the condition provided by the Predicate
+    map(Function f)              - To perform some operation and return some value
+    collect(Collectors.toList()) - To collect and return as a list at the end (to collect the results)
+
+
+3. count() method
+========================================================================================================================
+
+* count() method can be used to get the total number of elements of a stream. (How many elements are there in the stream)
+  (count can be obtained from a stream without doing anything, after filtering or modifying)
+
+* count() method returns a long value
+
+* Example -
+
+	import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> marks = new ArrayList<Integer>();
+            marks.addAll(Arrays.asList(new Integer[]{70,45,10,65,20,25}));
+
+			System.out.println(marks);
+
+            long noOfFailedStudents = marks.stream().filter(m -> m<35).count();
+
+            System.out.println("Failed count : "+noOfFailedStudents);
+        }
+    }
+
+4. sorted() method : to sort elements based on Default Natural Sorting Order
+========================================================================================================================
+
+* No arguments sorted() method will sort the elements based on DNSO (Default Natural Sorting Order)
+
+* Example program 1 : Sorting a list of numbers according to default natural sorting order - Ascending order
+.................................................................................................................................
+
+	import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> marks = new ArrayList<Integer>();
+            marks.addAll(Arrays.asList(new Integer[]{70,45,10,65,20,25}));
+
+			System.out.println(marks);
+
+            List<Integer> sortedList = marks.stream().sorted().collect(Collectors.toList());
+
+            System.out.println(sortedList);
+        }
+    }
+
+* Example program 2 : Sorting a list of Strings according to default natural sorting order - Alphabetical order
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+
+            ArrayList<String> heroins = new ArrayList<String>();
+            heroins.addAll(Arrays.asList(new String[]{"Kajol","Anushka","Shruthi","Angelina","Kate"}));
+            System.out.println(heroins);
+
+            List<String> sortedList = heroins.stream().sorted().collect(Collectors.toList());
+            System.out.println(sortedList);
+        }
+    }
+
+
+5. sorted(Comparator c) method : to achieve customised sorting
+========================================================================================================================
+
+* for this method, we can provide a Comparator and achieve customised sorting functionality based on out requirement.
+
+* Comparator is a functional interface and the abstract method inside is compare(Object obj1, Object obj2)
+
+* Comparator =====> compare(Object obj1, Object obj2)
+
+    - returns - (negative) if and only if obj1 has to come before obj2
+    - returns + (possitive) if and only if obj1 has to come after obj2
+    - returns 0 if obj1 and obj2 are equal
+
+* Example comparator for sorting according to descending order of numbers based on lambda expressions
+
+    (I1,I2) -> (I1<I2) ? +1 : (I1>I2) ? -1 : 0
+
+* Example comparator for sorting according to inverse alphabetical order 
+
+    (S1,S2) -> -S1.compareTo(S2)  
+        or 
+    (S1,S2) -> (S2.compareTo(S1)
+
+* Example program 1 : Sorting list elements according to descending order 
+.................................................................................................................................
+
+import java.util.stream.*;
+import java.util.*;
+
+class Test {
+    public static void main(String[] args) {
+        ArrayList<Integer> unsortedList = new ArrayList<Integer>();
+        unsortedList.addAll(Arrays.asList(new Integer[]{12,65,2,78,32,34,98,78,48,23,1,2,3}));
+
+        System.out.println(unsortedList);
+
+        List<Integer> sortedList = unsortedList.stream().sorted((I1,I2)-> (I1<I2) ? +1 : (I1>I2) ? -1 : 0).collect(Collectors.toList());
+
+        System.out.println(sortedList);
+
+        // Following way is also possible
+        Comparator<Integer> c = (I1,I2) -> (I1<I2) ? +1 : (I1>I2) ? -1 : 0;
+        List<Integer> sortedList2 = unsortedList.stream().sorted(c).collect(Collectors.toList());
+        System.out.println(sortedList2);
+    }
+}
+
+.................................................................................................................................
+
+* Default Natural Sorting Order is implemented using Comparable interface internally
+    Comparable ==> compareTo();
+
+* Here internally hwat happens is,
+    (I1,I2) -> I1.compareTo(I2)
+
+* Inorder to reverse the default natural sortingorder, we just have to put a minus - symbol infront of the lambda expression body
+  as follows. (This is an alternative solution for customised sorting by reversing DNSO)
+    (I1,I2) -> -I1.compareTo(I2);
+
+* To reverse default natural sorting order, interchaning of arguments within lambda expression body is also possible as follows
+    (I1,I2) -> I2.compareTo(I1);
+
+* Example program 2 : Reversing Default Natural Sorting Order
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> unsortedList = new ArrayList<Integer>();
+
+            unsortedList.addAll(Arrays.asList(new Integer[]{12,54,67,23,90,23,0,34,1,453,45,76}));
+            System.out.println(unsortedList);
+
+            // added - to reverse DNSO
+            List<Integer> sortedList = unsortedList.stream().sorted((I1,I2)-> -I1.compareTo(I2)).collect(Collectors.toList());
+            System.out.println(sortedList);
+
+            // Interchange of arguments
+            List<Integer> sortedList2 = unsortedList.stream().sorted((I1,I2)-> I2.compareTo(I1)).collect(Collectors.toList());
+            System.out.println(sortedList2);
+
+        }
+    }
+
+* Example program 3 : Sorting a list of Strings according to reverse Alphabetical order
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+
+            ArrayList<String> heroins = new ArrayList<String>();
+            heroins.addAll(Arrays.asList(new String[]{"Kajol","Anushka","Shruthi","Angelina","Kate"}));
+            System.out.println(heroins);
+
+            List<String> sortedList = heroins.stream().sorted((S1,S2) -> -S1.compareTo(S2)).collect(Collectors.toList());
+            System.out.println(sortedList);
+
+            //Other way
+            List<String> sortedList2 = heroins.stream().sorted((S1,S2) -> S2.compareTo(S1)).collect(Collectors.toList());
+            System.out.println(sortedList2);
+        }
+    }
+
+ - IMPORTANT - 
+    (s1,s2) ->  s1.compareTo(s2)    ========>   Default Natural Sorting Order 
+    (s1,s2) ->  s2.compareTo(s1)    ========>   Reverse of Default Natural Sorting Order with arguments interchange
+    (s1,s2) -> -s1.compareTo(s2)   ========>   Reverse of Default Natural Sorting Order with making retrun value - (minus)
+
+
+* Example program 4 : Sorting a list of Strings according to the ascending order of their length
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+
+            ArrayList<String> heroinsList = new ArrayList<String>();
+            heroinsList.addAll(Arrays.asList(new String[]{"Priyanja","Briyanka","Kajol Devgan","Anushka Sharma","Shruthi","Angelina","Kate Winstlet"}));
+            System.out.println(heroinsList);
+
+
+            /*
+                Here heroinsList will be sorted according to the lenght of their names. (According to the ascending order ot their name)
+                In case if the lenght of two names are the same (if both are having same length), 
+                then those will be sorted according to the descending order of their name
+            */
+            List<String> sortedList = heroinsList.stream().sorted((s1,s2) -> (s1.length()<s2.length()) ? -1 : (s1.length()>s2.length()) ? 1 : s1.compareTo(s2)).collect(Collectors.toList());
+            System.out.println(sortedList);
+
+
+            // Another way - Same but code is lengthy (explicit implementation of the comparator)
+            Comparator<String> c = (s1,s2) -> {
+                int l1 = s1.length();
+                int l2 = s2.length();
+
+                if(l1<l2) return -1;
+                else if (l1>l2) return +1;
+                else return s1.compareTo(s2);
+            };
+
+            List<String> sortedList2 = heroinsList.stream().sorted(c).collect(Collectors.toList());
+            System.out.println(sortedList2);
+        }
+    }
+
+.................................................................................................................................
+
+* Upto now recap 
+
+    stream()
+    filter(Predicate p)
+    map(Function f)
+    collect()
+    count()
+    sorted() - Default Natural Sorting Order
+    sorted(Comparator c) - Customised sorting order
+
+
+6. min(Comparator c) and max(Comparator c) methods. min and max element present inside a stream (considering sorting)
+========================================================================================================================
+
+* Here min and max elemets are not evaluated according to the value. It is checked based on the sorting order.
+
+* For example consider the list below. 
+    [5,3,10,15,4]
+
+    - According to the ascending order 
+        [3,4,5,10,15]
+            min element is 3 
+            max element is 15
+
+    - According to the descending order 
+        [15,10,5,4,3]
+            min element is 15 
+            max element is 3
+
+* Based on the position, first element is considered as min and the last element will be considered as max element 
+
+* Whnever we are trying to get min() or max() element, compulsory we must consider the sorting order
+
+* for min(Comparator c) and max(Comparator c) methods, we must provide Comparator reference as the parameter. Which means that 
+  Comparator has to be specified otherwise it is not going to consider default natural sorting order
+
+* min returns first value and max returns last value of a stream which is sorted 
+
+* At the end we have to call .get() method to get the value is the corresponding position
+
+* Example 1 : 
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+
+            ArrayList<Integer> unsortedList =new ArrayList<Integer>();
+            unsortedList.addAll(Arrays.asList(new Integer[]{10,0,15,5,20}));
+            System.out.println(unsortedList);
+
+            // Minimum value according to ascending order 
+           Integer minValueAccordingToASC = unsortedList.stream().min((I1,I2) -> I1.compareTo(I2)).get();
+           System.out.println("Minimum value according to ASC order : "+minValueAccordingToASC);
+
+            // Minimum value according to ascending order 
+           Integer maxValueAccordingToASC = unsortedList.stream().max((I1,I2) -> I1.compareTo(I2)).get();
+           System.out.println("Maximum value according to ASC order : "+maxValueAccordingToASC);
+
+            // Minimum value according to descending order 
+           Integer minValueAccordingToDESC = unsortedList.stream().min((I1,I2) -> -I1.compareTo(I2)).get();
+           System.out.println("Minimum value according to DESC order : "+minValueAccordingToDESC);
+
+            // Maximum value according to descending order 
+           Integer maxValueAccordingToDESC = unsortedList.stream().max((I1,I2) -> -I1.compareTo(I2)).get();
+           System.out.println("Maximum value according to DESC order : "+maxValueAccordingToDESC);
+        }
+    }
+
+
+7. forEach(Consumer c) method
+========================================================================================================================
+
+* If we want to perform some functionality on each and every object in the stream, then we can use forEach(Consumer f) method
+
+* forEach(Consumer f) accepts a function to be executed on each element. We can either implement the function with a lambda expression
+  or else we can refer a method using method reference (::) as well.
+
+* ex : list.stream(),forEach(Consumer f). Lets say we want to print  all the elements present inside the stream, we can follow the
+       approach below (Method reference based implementation of Functional interface Consumer to print elements)
+    
+    list.stream().forEach(System.out::println);
+
+* Example 1 : Printing all the elements in a srteam using forEach() method
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            list.addAll(Arrays.asList(new Integer[] { 23, 54, 78, 43, 56, 312, 12, 43, 45 } ));
+
+            list.stream().forEach(System.out::println);
+        }
+    }
+
+* Example 2 : Provding our own Function implementation
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+    import java.util.function.Consumer; //important 
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            list.addAll(Arrays.asList(new Integer[] { 23, 54, 78, 43, 56, 312, 12, 43, 45 } ));
+
+            Consumer<Integer> c = I -> System.out.println("The square of "+I+" is : "+(I*I));
+
+            list.stream().forEach(c);
+        }
+    }
+
+
+8. toArray(IntFunction<A[]> generator) method
+========================================================================================================================
+
+* Signature : <A> A[] toArray(IntFunction<A[]> generator)  
+* We can use toArray() method to convert stream of elements.objects into an array
+
+* Type of the array will be the corresponding data type of the list
+
+* Example 1 : 
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            list.add(10);
+            list.add(0);
+            list.add(15);
+            list.add(5);
+            list.add(20);
+
+            // We have to pass type of the array as a constructor reference
+            Integer[] integerArray = list.stream().toArray(Integer[]::new);
+
+            for(Integer i1 : integerArray) {
+                System.out.println(i1);
+            }
+
+            System.out.println("--------------------------");
+
+            //toArray() no arguments method directly returns an object array
+            Object[] objectArray = list.stream().toArray();
+			 for(Object obj : objectArray) {
+                System.out.println(obj);
+            }
+        }
+    }
+
+* toArray() no arguments method directly returns an object array
+
+
+9. How to get the stream of an array - .of() static method
+========================================================================================================================
+
+    import java.util.*;
+    import java.util.stream.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Integer> myList = new ArrayList<Integer>();
+            myList.addAll(Arrays.asList(new Integer[]{23,54,67,34,21,65,76,87,22,23,78,99}));
+
+            //Converting the list into an array
+            Integer[] integerArray = myList.stream().toArray(Integer[]::new);
+
+            //Getting the Stream of the array with .of() static method
+            Stream.of(integerArray).forEach(System.out::println);;
+        }
+    }
+
+* (Find out more in internet)
+
+* Upto now recap 
+
+    stream()
+    filter(Predicate p)
+    map(Function f)
+    collect()
+    count()
+    sorted()
+    sorted(Comparator c)
+    min(Comparator c)
+    max(Comparator c)
+    forEach(Consumer c)
+    toArray(IntFunction<A[]> generator)
+    toArray()
+ 
+
+10. Stream.of() method
+========================================================================================================================
+
+* Streams concept is not limited to Collections. Wherever  a group of values are there, then we can go for Streams concept.
+  The source of the Stream may be a Collection, Array or a I/O resource
+
+* Example 1 : 
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.*;
+
+    class Test {
+        public static void main(String[] args) {
+
+            //Applying Streams concept to just a group of values
+            Stream<Integer> s = Stream.of(9,12,11,12,15,23);
+            s.forEach(System.out::println); 
+
+			System.out.println("--------------------------------------");
+
+            // Getting the Stream of an array
+            Integer[] arr = {10,20,30,40};
+            Stream<Integer> s1 = Stream.of(arr);
+			s1.forEach(System.out::println);
+        }
+    }
+
+* Once we get the stream from a source (Array,Collection or etc) , all the Stream related methods are by default applicable 
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+- FIND OUT MROE -
+
+    FlatMap, Parellel streams ** find out more.
+    Find out how Streams are working for Maps 
+    reduce
+    Per-defined functional interfaces - UnaryOperator, Binary Operator 
+

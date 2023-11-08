@@ -1,0 +1,212 @@
+________________________________________________________________________________________________________________________
+- Lambda Expressions - Multithreading & Collections -
+------------------------------------------------------------------------------------------------------------------------
+
+1. Quick Recapture adn Important Descriptions
+========================================================================================================================
+
+    @FunctionalInterface
+    interface Interf {
+        public int squareIt(int n);
+    }
+
+    class Test {
+        public static void main(String[] args) {
+            Interf i = n -> n * n;
+            System.out.println(i.squareIt(4));
+        }
+    }
+
+    * java.util.function package - In this, there are several pre defined functional interfaces to meet our general
+      requirements. By using that, we can make lambda expressions use in a very general way
+
+    * Lambda expressions can be used commonly
+
+    * Is a separate .class file generated for lambda expressions ?
+      (Are Lambda expressions internally converted into a .class file ? )
+         - No.
+            There is no such type of terminology. At the time of compilation or somewhere it be converted into a private
+            method
+
+
+2. Ways of defining a thread & lambda expressions related multithreading
+========================================================================================================================
+
+    1. Implementing Runnable interface (Runnable is a functional interface)
+
+    * Tradition implementations
+    -------------------------------------------------------------
+
+        class MyRunnable implements Runnable {
+            public void run() {
+                for(int i=0; i<10; i++) {
+                    System.out.println("Child Thread");
+                }
+            }
+        }
+
+        class Test {
+            public static void main(String[] args) {
+                MyRunnable r =new MyRunnable();
+                Thread t = new Thread(r);
+                t.start();
+
+                for(int i=0; i<10; i++) {
+                     System.out.println("Main Thread");
+                }
+            }
+        }
+
+    - Here Runnable interface is a functional interface, Because it consists of single abstract method which is 
+      "public void run()". We can implement this with a lambda expression without having a separate interface
+      definition as above. Take a look at the example below.
+
+    * Lambda expression related implementation
+    -------------------------------------------------------------
+
+        class Test {
+            public static void main(String []args){
+                // Defining Runnable and implementing run() method
+                Runnable r =() -> {
+                    for(int i=0;i<10;i++){
+                        System.out.println("ChildThread");
+                    }	
+                }; // This semicolon is important		
+
+                // Defining a new thread
+                Thread t = new Thread(r);
+                t.start();
+                
+                // Main thread content
+                for(int i=0;i<10;i++){
+                    System.out.println("Main Thread");
+                }
+            }
+        }
+
+3. Lambda expressions and Collections
+========================================================================================================================   
+
+- Comparator(I) is a functional interface which consists only one abstract method "public int compare(Object obj1, Object obj2)"
+
+    // Definition
+    interface Comparator{
+        public int compare(Object obj1, Object obj2);
+    }
+
+    // Implementation example 
+    public int compare(Object obj1, Object obj2){
+        /* returned values
+            returns - (negative) if and only if obj1 has to come before obj2
+            returns + (possitive) if and only if obj1 has to come after obj2
+            returns 0 if and only if obj1 and obj2 are equal
+        */
+    }
+
+    * Tradition implementations
+    ---------------------------------------------------------------------------
+
+    import java.util.*;
+
+    class MyComparator implements Comparator<Integer>{
+        public int compare(Integer I1, Integer I2){
+            return (I1<I2) ? -1 : (I1>I2) ? +1 : 0;
+        }
+    }
+
+    class Test{
+        public static void main(String[] args){
+            ArrayList<Integer> l = new ArrayList<Integer>();
+            l.add(20);
+            l.add(10);
+            l.add(25);
+            l.add(5);
+            l.add(30);
+            l.add(0);
+            l.add(15);
+
+            System.out.println(l);
+            Collections.sort(l,new MyComparator()); // Using our Comparator
+            System.out.println(l);
+        }
+    }
+
+    * Lambda expressions related implementation (with some additional examples)
+    ---------------------------------------------------------------------------
+
+    import java.util.*;
+    import java.util.stream.*;
+
+    class Test{
+        public static void main(String[] args){
+            ArrayList<Integer> l =new ArrayList<Integer>();
+            l.add(20);
+            l.add(10);
+            l.add(25);
+            l.add(5);
+            l.add(30);
+            l.add(0);
+            l.add(15);
+
+            System.out.println(l);
+
+            /*
+             Can be done as follows as well
+             Comparator<Integer> c = (I1,I2) -> (I1<I2) ? -1 : (I1>I2) ? +1 : 0;
+             Collections.sort(l,c);
+            */
+
+            // More simplified approach
+            Collections.sort(l, (I1,I2) -> (I1<I2) ? -1 : (I1>I2) ? +1 : 0);
+
+            System.out.println(l);
+
+            //Streams concept, here :: is method reference
+            l.stream().forEach(System.out::println);
+
+            // Use of filters. Collecting even numbers to a new List object
+            // Collectors class is present inside java.util.stream package 
+            List<Integer> l2 = l.stream().filter(i -> i%2==0).collect(Collectors.toList());
+            l2.stream().forEach(System.out::println);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

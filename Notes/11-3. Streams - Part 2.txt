@@ -1,0 +1,100 @@
+11. flatMap() method
+========================================================================================================================
+
+* flatMap() method signature
+
+    - <R> Stream<R> flatmap(Function<? super T, ? extends Stream< ? extends R>> mapper);
+
+* How flatMap() works
+
+    { {1,2} , {3,4} , {5,6,7} } ========> flatMap() ========> { 1, 2, 3, 4, 5, 6, 7 }  
+
+* Stream flatMap() method is used to flatten a stream of collections to a stream of elements combined from those collections.
+
+* This flatMap() method has the effect of applying a one to many transformation to the elements of the stream and then flattening 
+  the resulting elements into a new stream.
+
+* Stream.flatMap() helps converting :
+         - Collection<Collection<T>> to Collection<T>
+
+         - flatMap() = map() + flattening )
+
+* Flattening
+    - Flattening refers to conversion of several lists, and merge them to create a single list containing all the elements from all 
+      the lists
+    - Example : 
+
+            Before flattening   :   [ [1, 2, 3], [4, 5], [6, 7, 8, 9, 10] ]
+            After flattening    :   [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ] 
+
+* Example program 1 : Comnining a list of interger type lists
+.................................................................................................................................
+
+    import java.util.stream.*;
+    import java.util.Arrays;
+    import java.util.List;
+
+    class Test {
+        public static void main(String[] args) {
+            List<Integer> firstList = Arrays.asList(1,2,3);
+            List<Integer> secondList = Arrays.asList(4,5,6);
+            List<Integer> thirdList = Arrays.asList(7,8,9,10); 
+
+            List<List<Integer>> allListsList = Arrays.asList(firstList,secondList,thirdList);
+
+            List<Integer> combinedList = allListsList.stream().flatMap(x -> x.stream()).collect(Collectors.toList());  
+
+            // Method reference is also possible
+            //List<Integer> combinedList = allListsList.stream().flatMap(Collection::stream).collect(Collectors.toList());  
+
+            combinedList.stream.forEach(System.out::println);
+        }
+    }
+
+
+* Example program 2 : Combining the array elements of a two dimentional array
+.................................................................................................................................
+
+    import java.util.stream.Collectors;
+    import java.util.List;
+    import java.util.Arrays;
+
+    class Test {
+        public static void main(String[] args) {
+
+            String[][] string2dArray = new String[][] { {"a","b"} , {"c","d"} , {"e","f"} , {"g","h"} };
+
+            List<String> listOfStringCharacters = Arrays.stream(string2dArray).flatMap(x -> Arrays.stream(x)).collect(Collectors.toList());
+
+            // Possible with method reference as well
+            //List<String> listOfStringCharacters = Arrays.stream(string2dArray).flatMap(Arrays::stream).collect(Collectors.toList());
+
+            System.out.println(listOfStringCharacters);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+* Stream interface has three more similar methods which produce IntStream, LongStream and DoubleStream respectively after the flatMap 
+  operation. If the Stream created after flatMap() operations have given return types then consider using these functionality directly 
+
+    IntStrem    
+        - IntStream flatMapToInt(Function<? super T, ? extends IntStream> mapper);
+
+    LongStream
+        - LongStream flatMapToInt(Function<? super T, ? extends LongStream> mapper);
+
+    DoubleStream
+        - DoubleStream flatMapToInt(Function<? super T, ? extends DoubleStream> mapper);

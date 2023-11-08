@@ -1,0 +1,289 @@
+________________________________________________________________________________________________________________________
+- Predefined Functional Interface- Predicate, Function & Consumer -
+------------------------------------------------------------------------------------------------------------------------
+
+* Quick recap : 
+
+    - Predicate : 
+        For conditional checks, we can use Predicate functional interface. Predicates accepts any type of specified (one parameter) but 
+        always returns a boolean value. It is possible to combine multiple predicates using and(Predicate p) and or(Predicate p) methods.
+        We can invert the predicate functionality by using negate() method as well.
+
+        ex : Predicate<Integer> p = I ->  I%2==0;
+             System.out.println(p.test(12));
+
+     - Function : 
+        If out requirement is to input some value , perform some operations and produce some result, then we can use
+        Function functional interfaces. (Predicate FI always returns a boolean value but Function FI can return different types)
+
+1. Function functional interface
+========================================================================================================================
+
+ * If out requirement is to input some value , perform some operations and produce some result, then we can use
+   Function functional interfaces. (Predicate FI always returns a boolean value but Function FI can return different types)
+
+ * Function functional interface contains apply(T t) method
+
+ * Prototype of Function functional interface
+    
+    T = Type parameter for input type (Can be any type)
+    R = Return type parameter (Can be any type)
+
+    interface Function<T,R> {
+        public abstract R apply(T t);
+    }
+
+ * Example 1 : Simple program to get the square of a given number
+ ....................................................................................................................
+
+    import java.util.function.Function;
+
+    class Test {
+        public static void main(String[] args) {
+
+            Function<Integer,Integer> f = i -> i*i;
+
+            System.out.println(f.apply(4));
+            System.out.println(f.apply(5));
+        }
+    }
+
+ * Example 2 : Program which accepts a String value and returns the length of that String
+ ....................................................................................................................
+
+    import java.util.function.Function;
+
+    class Test {
+        public static void main(String[] args) {
+
+            Function<String,Integer> f = s -> s.length(); // String is the input type and Integer is the output type
+            System.out.println(f.apply("This is my String"));
+        }
+    }
+
+ * Example 3 : Program which accepts a String value and returns it in uppercase format
+ ....................................................................................................................
+
+    import java.util.function.Function;
+
+    class Test {
+        public static void main(String[] args) {
+            Function<String,String> f = s -> s.toUpperCase();
+            System.out.println(f.apply("hi how are you my friend"));
+        }
+    }
+
+ * Example 4 : Return the grade of a student based on the marks. Information should be displayed if the marks are greater than 60
+ .................................................................................................................................
+ 
+    import java.util.function.Function;
+    import java.util.function.Predicate;
+
+    class Student {
+        String name;
+        int marks;
+        
+        public Student(String name, int marks){
+            this.name=name;
+            this.marks=marks;
+        }
+    }
+
+    class Test {
+        public static void main(String[] args) {
+            
+            Student[] students = {
+                new Student("Luvigi",56) ,
+                new Student("Arshad",60) ,
+                new Student("Shalini",98) ,
+                new Student("Namal",35),
+                new Student("Sanith",26),
+                new Student("Shani",78)
+            };
+
+            Function<Student,String> gradeFunction = s -> (s.marks>=80) ? "A [Distinction]" : (s.marks>=60) ? "B [Second Class]" : (s.marks>=50) ? "C [Second Class]" : (s.marks>=35) ? "D [Third Class]" : "E [Failed]";
+
+            Predicate<Student> marksPredicate = s -> s.marks>=60;
+            
+            for(Student student : students) {
+                if(marksPredicate.test(student)){
+                    System.out.println(student.name+" | "+student.marks+" : "+gradeFunction.apply(student));
+                }
+            }
+        }
+    }
+
+
+ * Example 5 : Function chaining is also possible (ex : f1.andThen(f2).apply("value"))
+ .................................................................................................................................
+
+    import java.util.function.Function;
+
+    class Test {
+
+        public static void main(String[] args) {
+
+            Function<String,String> f1 = s -> s.concat(" concatinated text  ! !");
+
+            Function<String,String> f2 = s -> s.replace(" ","");
+
+            Function<String,String> f3 = s -> s.toUpperCase();
+
+            String myValue1 = "Hi how are you everyone. ";
+            String myValue2 = "This is my value 2 ";
+
+            /* 
+                Chaining using .addThen(Function f) method
+
+                First f1 function will be applied. after applying f1 function for the result f2 function will be applied.
+                After applying f2 function, to the result , f3 function will be applied 
+
+                Likewise we can combine multiple functions to gether and chain inorder to form more complex functions
+            */
+            myValue1 = f1.andThen(f2).andThen(f3).apply(myValue1);
+            System.out.println(myValue1); // HIHOWAREYOUEVERYONE.CONCATINATEDTEXT!!
+
+            /* 
+                Using .compose(Function f) method chaining can be done in reverse order
+
+                Difference between .addThen(Function f) vs .compose(Function f)
+                    
+                    f1.andThen(f2).andThen(f3).apply(myValue1);
+                        - Here first f1 will be executed and then f2 will be executed and then f3 will be executed 
+                          (first f1 followed by f2 followed by f3) (f1->f2->f3)
+
+                    f1.compose(f2).compose(f3).apply(myValue2);
+                        - Here first f3 will be executed and then f2 will be executed and then f1 will be executed 
+                        (first f3 followed by f2 followed by f1) (f3->f2->f1)
+            */
+            myValue2 = f1.compose(f2).compose(f3).apply(myValue2); 
+            System.out.println(myValue2); // THISISMYVALUE2 concatinated text  ! !
+
+        }
+    }
+
+ * Example 6 : Function chaining example 2
+ .................................................................................................................................
+
+    import java.util.function.Function;
+
+    class Test {
+        public static void main(String[] args) {
+
+            Function<Integer,Integer> f1 = i -> i*2;
+            Function<Integer,Integer> f2 = i -> i*i*i;
+
+            System.out.println(f1.andThen(f2).apply(2)); // 64 (executio order f1->f2) 
+            System.out.println(f1.compose(f2).apply(2)); // 16 (executio order f2->f1)
+        }
+    }
+
+
+2. Consumer functional interface
+========================================================================================================================
+
+* functional interface behaviours
+
+    - Predicate<T>  :   Accepts a type parameter T and always return a boolean value
+    - Function<T,R> :   Accepts a type parameter T and returns R (which can be any type) type
+    - Consumer<T>   :   Comsumer only takes a type parameter T but does not return anything (void)
+                        Whatever the value input is comsumed but does not return anything
+
+
+ * Prototype of consumer interface
+    
+    interface Consumer<T> {
+        public abstract void accept(T t);
+    }
+
+ * Example 1 : 
+ .................................................................................................................................
+
+    import java.util.function.Consumer;
+
+    class Test {
+        public static void main(String[] args) {
+            Consumer<String> c = s -> System.out.println(s);
+
+            c.accept("I am consumer");
+        }
+    }
+
+ * Example 2 : Write a consumer which takes Student as the argument and print Student Information (based on a previous example)
+               (Combination of Predicate, Function and Consumer)
+ .................................................................................................................................
+
+    import java.util.function.Function;
+    import java.util.function.Predicate;
+    import java.util.function.Consumer;
+
+    class Student {
+        String name;
+        int marks;
+        
+        public Student(String name, int marks){
+            this.name=name;
+            this.marks=marks;
+        }
+    }
+
+    class Test {
+        public static void main(String[] args) {
+            
+            Student[] students = {
+                new Student("Luvigi",56) ,
+                new Student("Arshad",60) ,
+                new Student("Shalini",98) ,
+                new Student("Namal",35),
+                new Student("Sanith",26),
+                new Student("Shani",78)
+            };
+
+            Function<Student,String> gradeFunction = s -> (s.marks>=80) ? "A [Distinction]" : (s.marks>=60) ? "B [Second Class]" : (s.marks>=50) ? "C [Second Class]" : (s.marks>=35) ? "D [Third Class]" : "E [Failed]";
+
+            Predicate<Student> marksPredicate = s -> s.marks>=50;
+
+            Consumer<Student> studentConsumer = s -> System.out.println("Name : "+s.name+" | marks : "+s.marks+" | grade : "+gradeFunction.apply(s)); // gradeFunction function has also been used within consumer function
+            
+            for(Student student : students) {
+                if(marksPredicate.test(student)){
+                    studentConsumer.accept(student);
+                }
+            }
+        }
+    }
+
+ * Example 3 : Consumer chaining with andThen(Consumer c)
+ .................................................................................................................................
+
+    import java.util.function.Consumer;
+
+    class Movie {
+        String name;
+        
+        public Movie(String name) {
+            this.name = name;
+        }
+    }
+
+    class Test {
+        public static void main(String[] args) {
+
+            Consumer<Movie> c1 = m -> System.out.println(m.name + " is ready to release");
+            Consumer<Movie> c2 = m -> System.out.println(m.name + " was released and it is a bigger flop !!");
+            Consumer<Movie> c3 = m -> System.out.println(m.name + " Information are storing in the database");
+
+            /* 
+                Chaining the Consumer. accept(T t) is not applied here at the end and it is applied where the cahined
+                consumer is called. Not like Function chaining
+
+                .compose(T t) is not applicable for Consumer chaining
+            */
+            Consumer<Movie> chainedConsumer = c1.andThen(c2).andThen(c3);
+
+            Movie myMovie = new Movie("Ranja");
+
+            chainedConsumer.accept(myMovie);
+        }
+    }
+    

@@ -1,0 +1,152 @@
+________________________________________________________________________________________________________________________
+- Lambda Expressions -
+------------------------------------------------------------------------------------------------------------------------
+
+ * Lambda Calculus was a big change in the world of mathematics (in 1930)
+ * Programmers started using lambda expressions slowly
+ * First programming language to use Lambda expressions was "LISP"
+ * Lambda expressions came with java lately (JavaScript,Python,C,C++,Ruby,Scala abd finally in Java as well)
+ * Lambda expressions are very easy if learnt properly
+
+1. The main objective of Lambda Expression
+========================================================================================================================
+    - To bring benefits of functional programming into Java and write more consise code
+
+2. What is Lambda Expression
+========================================================================================================================
+    - It is an anonymous function (Nameless function),
+        without name,
+        without return type,
+        without modifiers.
+
+3. How to write lambda expressions
+========================================================================================================================
+
+    3.1 Example 1 :
+    ....................................................................................................................
+        * Traditional way of writing a method :
+        ---------------------------------------
+            public void sayHello(){
+                System.out.println("Hello");
+            }
+
+        * Lambda expression way :
+        -------------------------
+            - remove name, return type and modifier and in the middle include and represent with -> symbol
+
+                () -> { System.out.println("Hello"); }
+                        //body of lambda expression
+
+            - If the lambda expression body contains only one line, then curly braces {} are optional.
+              But if multiple line are there, then curly braces are mandatory
+
+                () -> System.out.println("Hello");
+
+    3.2 Example 2 :
+    ....................................................................................................................
+        * Traditional way  :
+        -------------------------------
+            public void sum(int a,int b){
+                System.out.println(a+b);
+            }
+
+        * Lambda expression way :
+        --------------------------------
+            - Based o context, the compiler can guess the type automatically. In that case, we do not need to
+              specify the types of the parameters explicitly
+
+                (int a,int b) -> System.out.println(a+b);
+
+                (a,b) -> System.out.println(a+b); //  if compiler can guess the type
+
+
+    3.3 Example 3 :
+    ....................................................................................................................
+        * Traditional way  :
+        -------------------------------
+            public int squareIt(int n){
+                return n*n;
+            }
+
+        * Lambda expression way :
+        --------------------------------
+            (int n) ->  { return n*n } ;
+
+            (int n)-> n*n;
+                * Without curly braces {}, if you want to return something, then we do not need to
+                  specify return keyword explicitly and it is automatically considered as return type.
+
+                * But if we are returning within curly braces { ... }, it is mandatory to use return statement
+                    ex : (int n) ->  { return n*n } ;
+
+            (n) -> n*n;
+                * If the compiler can guess the parameter type, we can remove the type also and simplify more
+
+            n -> n*n;
+                * In the number of input parameters is 1/ If there is only one input parameter, then we do not need to
+                  wrap the input parameter with braces ( ) as well.
+
+    3.4 Example 4 :
+    ....................................................................................................................
+        * Traditional way  :
+        -------------------------------
+            public void getLength(String s){
+                return s.length();
+            }
+
+        * Lambda expression way :
+        --------------------------------
+            (String s) -> { return s.length; }
+            (String s) -> s.length();
+            (s) -> s.length;
+
+            s -> s.length(); // Final simplified expression
+
+    3.5 Example 5 : Calling a lambda expression
+    ....................................................................................................................
+        What is a functional interface (FI = Functional Interface) ?
+            * An interface which contains single abstract method.
+
+                Runnable        ==> run()
+                Comparable      ==> compareTo()
+                Comparator      ==> compare()
+                ActionListener  ==> actionPerformed()
+                Callable        ==> call()
+
+            * All these interfaces are by default considered as functional interfaces. Each of these interface
+              contains single abstract method (ine abstract method)
+
+            * If we want to invoke a lambda expression, compulsory a functional interface is required. The job of
+              functional interface is to invoke lambda expression
+
+4. Lambda expression related conclusions
+========================================================================================================================
+
+    * A lambda expression can have any number of arguments.
+
+    * If multiple arguments are there, then those should be separated with comma
+        ex : (a,b)-> a*b;
+
+    * If only one argument is there, then () brackets are not required
+        ex :
+            (n) -> n*n;
+            n -> n*n;   // Brackets removed
+
+    * If the compiler can guess the types automatically , it is possible to remove types as well
+        ex :
+            (int a, int b) -> a*b;
+            (a,b) -> a*b;   // Types removed
+
+    * If the body contain only one line, then curly braces are optional
+        ex : (n) -> n*n;
+
+    * Question - Which one(s) are correct ?
+        1. n -> return n*n;         // Invalid - Violates Rule 1
+        2. n -> { return n*n; };    // Valid
+        3. n -> { return n*n };     // Invalid (Semicolon is missing)
+        4. n -> n*n;                // Valid
+        5. n -> {n*n}               // Invalid - Violates Rule 2
+
+        Rules related to return statement in Lambda expressions :
+            Rule 1 - Without curly braces we can't use return statement. Compiler will consider return value automatically
+            Rule 2 - Within curly braces,if we want to return some value, compulsory we should use return statement

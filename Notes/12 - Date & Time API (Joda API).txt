@@ -1,0 +1,664 @@
+______________________________________________________________________________________________________________________________________
+- Date & Time API (JODA API) -
+--------------------------------------------------------------------------------------------------------------------------------------
+
+* Date and Time API is also called as JODA Time API. Because this API was developed by joda.org (Third party interaction)
+  
+* Need of Date & Time API 
+    - Untill Java 7, there are several classes are there to handle data and Time
+        ex : java.util
+            Date, Calendar, TimeZone
+    
+    - But performance wise these are not recommended
+    - In order to resolve these issues new data time API, JODA Time API was introduced
+
+* JODA API is available at java.time package
+
+
+1. LocalDate class - Obtaining current date with LocalDate and extracting elements
+========================================================================================================================
+
+*  We can use now() static method inside LocalDate class 
+
+* Example 1 : Getting LocalDate
+.................................................................................................................................
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            LocalDate date = LocalDate.now();
+            System.out.println(date);
+        }
+    }
+
+* Example 2 : Formatting the date based on our requirement/ accessing individual date contents (Manual Approach)
+.................................................................................................................................
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            LocalDate date = LocalDate.now();
+            System.out.println(date); // Default representation of local date
+
+            int day = date.getDayOfMonth();
+            int month = date.getMonthValue();
+            int year = date.getYear();
+
+            System.out.println(day+".."+month+".."+year); // Custom output 1
+            System.out.printf("%d - %d - %d",day,month,year);  // Custom output 2
+
+            System.out.println();
+
+            System.out.printf("%d / %d / %d",day,month,year);  // Custom output 3
+        }
+    }
+
+2. LocalTime class - Obtaining Time as with LocalTime
+========================================================================================================================
+
+* If we want to represent time we can go for LocalTime
+
+*  We can use now() static method inside LocalTime class 
+
+* Example 1 : Getting LocalTime
+.................................................................................................................................
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            LocalTime time = LocalTime.now();
+            System.out.println(time);
+        }
+    }
+
+* Example 2 : Formatting the time based on our requirement/ accessing individual time contents (Manual Approach)
+.................................................................................................................................
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            LocalTime time = LocalTime.now();
+            
+            int hour = time.getHour();
+            int minute = time.getMinute();
+            int second = time.getSecond();
+            int nanoSecond = time.getNano();
+
+            System.out.printf("%d : %d : %d : %d",hour,minute,second,nanoSecond);
+        }
+    }
+
+
+3. LocalDateTime class - Representing both data and time
+========================================================================================================================
+
+* If we want to represent both date and time, we can go for LocalDateTime
+
+*  We can use now() static method inside LocalDateTime class 
+
+* Example 1 : Getting LocalDateTime
+.................................................................................................................................
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+
+            LocalDateTime dateTime = LocalDateTime.now();
+            System.out.println(dateTime);
+        }
+    }
+    
+    
+4. Representing an explicitly specified date and time  
+========================================================================================================================
+
+* We can use LocalDateTime class and static method of() inside it
+        ex : LocalDateTime.of(int year,int month,int day,int hour,int minute)
+
+* Example 1 : Representing a custom specified date and time using LocalDateTime
+.................................................................................................................................
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+
+            LocalDateTime customDateTime = LocalDateTime.of(1993,6,11,2,45);
+            System.out.println(customDateTime); //1993-06-11T02:45
+        }
+    }
+
+
+5. Date time calculations
+========================================================================================================================
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            LocalDateTime dateTime = LocalDateTime.of(1993,6,11,2,00);
+            System.out.println("Specified Date and Time : "+dateTime);
+
+            //Getting the date time after 6 months
+            LocalDateTime after6Months = dateTime.plusMonths(6);
+            System.out.println("After 6 months : "+after6Months);
+            
+            //Getting date time before 6 months
+            LocalDateTime before6Months = dateTime.minusMonths(6);
+            System.out.println("Before 6 months : "+before6Months); 
+        }
+    }
+
+
+* Current data can be obtained through LocalDate class -> now() static method
+    -  Date elements can be accessed as follows,
+            LocalDate date = LocalDate.now();
+
+            int day = date.getDayOfMonth();
+            int month = date.getMonthValue();
+            int year = date.getYear();
+
+    -  Can be manually specified as,
+        LocalDate birthDay = LocalDate.of(1993,06,11);
+
+
+* Current time can be obtained through LocalTime class -> now() static method
+    - Time elements can be accessed as follows,
+
+            LocalTime time = LocalTime.now();
+            
+            int hour = time.getHour();
+            int minute = time.getMinute();
+            int second = time.getSecond();
+            int nanoSecond = time.getNano();
+
+    - Can be manually specified as,
+        LocalTime time = LocalTime.of(22,21,11,123);
+
+
+* Both current date time can be obtained through LocalDateTime class -> now() static method
+    - LocalDateTime dateTime = LocalDateTime.now();
+
+    - We can set a custom date time with LocalDateTime as follows,
+        LocalDateTime customDateTime = LocalDateTime.of(1993,6,11,2,45);
+
+
+6. Period class
+========================================================================================================================
+
+* Period class objects can be used to represent quantity of time 
+
+* Official Doc :
+    - A date-based amount of time in the ISO-8601 Calendar system such as '2 years 3 months and 4 days'
+
+* Example 1 : Period class between static method
+.................................................................................................................................
+
+    - between method
+        - Signature 
+            static Period between(LocalDate startDateInclusive, LocalDate endDateExclusive;)
+        - Obtains a period consisting of number of years, months and days between two days 
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            LocalDate today = LocalDate.now();
+            LocalDate birthDay = LocalDate.of(1983,12,9);
+
+            //Obtaining the period (duration) between birthDay and today
+            Period period = Period.between(birthDay,today);
+            System.out.println(period); // Output : P26Y4M23D. Means 26 years, 4 months and 3 days
+
+            //Extracting Period object values
+            int years = period.getYears();
+            int months = period.getMonths();
+            int days = period.getDays();
+
+            System.out.printf("Hello you are %d years %d months and %d days old now",years,months,days);
+
+            //Assuming there are only 60 years to live
+            LocalDate finalDay = LocalDate.of(1983+60,12,9);
+            Period remainingPeriod = Period.between(today,finalDay);
+
+            //Obtaining remaining period in days
+            System.out.printf("\nRemaining number of days till age 60 is : %d",
+                (remainingPeriod.getYears()*365+remainingPeriod.getMonths()*30+remainingPeriod.getDays())
+            );
+        }
+    }
+
+* Example 2 : Year object functionalities, isLeap() method
+.................................................................................................................................
+
+    - isLeap() method is used to check whether the specified year is a leap year or not
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            int n = Integer.parseInt(args[0]);
+            Year year = Year.of(n);
+
+            if(year.isLeap()){
+                System.out.printf("%d is a leap year",n);
+            }
+            else {
+                System.out.printf("%d is not a leap year",n);
+            }
+        }
+    }
+
+    > javac Test.java
+    > java Test 1980
+
+7. ZoneId class
+========================================================================================================================
+
+* Example 1 : ZoneId class to represent time zone
+.................................................................................................................................
+
+     - systemDefault() static method of ZoneId class )(example output Asia/Colombo)
+        This method is used to retrieve system time zone
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ZoneId zone = ZoneId.systemDefault();
+            System.out.println(zone);
+        }
+    }
+
+* Example 2 : Representing a custom specified ZoneId using .of static method
+.................................................................................................................................
+   
+    - ZoneDateTime class .now(ZoneId zone) satic method is used to represents the date and time of a specified zone
+
+    import java.time.*;
+
+    class Test {
+        public static void main(String[] args) {
+            ZoneId losAngeles = ZoneId.of("America/Los_Angeles");
+            System.out.println(losAngeles);
+
+            ZonedDateTime zonedDateTime = ZonedDateTime.now(losAngeles);
+            System.out.println(zonedDateTime);
+        }
+    }
+
+    - Output : 
+        America/Los_Angeles
+        2019-11-03T01:47:14.026-08:00[America/Los_Angeles]
+
+
+* Quick recap
+    LocalDate
+    LocalTime
+    LocalDateTime
+    Period
+    Year
+    ZoneId
+    ZonedDateTime
+
+8. Questions and answers
+========================================================================================================================
+
+1. Which one is the valid LocalDate declaration ? 
+
+    a. LocalDate date = LocalDate.of(2012,01,32); //Invalid. Maximum days value should be 31 but here it is 32 
+    b. LocalDate date = LocalDate.of(2012,15,28); //Invalid. Maximum months value should be 12 but here it is 15   
+    c. LocalDate date = LocalDate.of(2012,07,28);
+
+    Answer : c
+
+.................................................................................................................................
+
+2. What is the result for the given the code fragment,
+
+    import java.time.*;
+    public class Test {
+        public static void main(String[] args) {
+            LocalDate dt = LocalDate.of(2012,01,32);
+            dt.plusDays(10);
+            System.out.println(dt);
+        }
+    }
+
+    a. 2012-02-10
+    b. 2012-02-11
+    c. Compilation functionalities
+    d. DateTimeException thrown at runtime
+  
+    Answer : d (Because maximum days range 31 has been exceeded. Compiles fine but at runtime the expection is thrown)
+
+
+    RE : 
+        Exception in thread "main" java.time.DateTimeException: Invalid value for DayOfMonth (valid values 1 - 28/31): 32
+        at java.time.temporal.ValueRange.checkValidValue(Unknown Source)
+        at java.time.temporal.ChronoField.checkValidValue(Unknown Source)
+        at java.time.LocalDate.of(Unknown Source)
+        at Test.main(Test.java:4)
+
+.................................................................................................................................
+
+3. What is the result for the given the code fragment,
+
+    import java.time.*;
+    public class Test {
+        public static void main(String[] args) {
+            LocalDate dt = LocalDate.of(2012,01,11);
+            dt.plusDays(10);
+            System.out.println(dt);
+        }
+    }
+
+    a. 2012-01-21
+    b. DateTimeException thrown at runtime
+    c. Compilation fails
+    d. 2012-01-11
+
+    Answer : d (LocalDate has to be assigned to another LocalDate object and displayed. Immutable)
+
+
+9. LocalDate parse methods 
+========================================================================================================================
+
+* These parse methods convert String into LocalDate
+    String ------------------------> LocalDate
+
+1. public static LocalDate parse(CharSequence text);
+
+    - Obtains an instance of LocalDate from a text string (such as "2017-03-12").
+    - The provided string must contain a valid date and is parsed using DateTimeFormatters.ISO_LOCAL_DATE
+
+    * Example : 
+    .................................................................................................................................
+
+        import java.time.*;
+
+        class Test {
+            public static void main(String[] args) {
+                LocalDate localDate = LocalDate.parse("2014-05-04");
+                System.out.println(localDate);
+            }
+        }
+    
+
+
+2. public static LocalDate parse(CharSequence text, DateTimeFormatter formatter);
+
+    - Obtains an instance of LocalDate from a text string using a specific formatter.
+    - The text is parsed using the formatter, returning a date
+    
+    * Example : 
+    .................................................................................................................................
+
+        import java.time.*;
+        import java.time.format.*;
+
+        public class Test {
+            public static void main(String[] args) {
+                LocalDate date = LocalDate.parse("2018-04-15",DateTimeFormatter.ISO_DATE);
+                LocalDateTime datetime = LocalDateTime.parse("2018-04-15T12:13:12.666",DateTimeFormatter.ISO_DATE_TIME);
+                System.out.println("date is : "+date);
+                System.out.println("datetime is : "+datetime);
+            }
+        }
+
+        - Output
+            date is : 2018-04-15
+            datetime is : 2018-04-15T12:13:12.666
+
+- NOTE -
+    * These methods throws DateTimeParseException if the text cannot be parsed
+    * CharSequence us an interface and it's implementation classes are String, StringBuffer, String Builder and etc.
+
+
+10. LocalDate class format() method
+========================================================================================================================
+
+* This meothd will convert LocalDate into String
+    LocalDate ------------------------> String 
+
+* public String format(DateTimeFormatter formatter)
+    - Formats the date using specified formatter . This date will be passed to the formatter to produce a String
+
+.................................................................................................................................
+
+
+- IMPORTANT -
+
+        _____________               format()                __________        
+        |           | ------------------------------------> |        |
+        | LocalDate |                                       | String |    
+        |           | <------------------------------------ |        |
+        -------------               parse()                 ----------    
+
+    - If we want to convert String to LocalDate, then parse() method should be used
+    - If we want to convert LocalDate to String, then format() method should be used
+
+
+11. Questions and answers
+========================================================================================================================
+
+1. Consider the following code. What is the result ?
+
+    import java.time.*;
+    import java.time.format.*; // IMPORTANT 
+
+    class Test {
+        public static void main(String[] args) {
+            String date = LocalDate.parse("2014-05-04").format(DateTimeFormatter.ISO_DATE_TIME);
+            System.out.println(date);
+        }
+    }
+
+    a. May 04,2014T00:00:00.000
+    b. 2014-05-04T00:00:00.000
+    c. 5/4/14T00:00:00.000
+    d. An exception is thrown at runtime
+
+    Answer : d 
+
+    Explanation : 
+        Here in out LocalDate object we have only the Date value but not both the date and time.
+        but we are passing DateTimeFormatter.ISO_DATE_TIME which considers both date and time as well
+
+    Simplified Code :
+        LocalDate dt = LocalDate.parse("2014-05-04");
+        String s = dt.format(DateTimeFormatter.ISO_DATE_TIME);
+        System.out.println(s);
+
+    RE : 
+        Exception in thread "main" java.time.temporal.UnsupportedTemporalTypeException: Unsupported field: HourOfDay
+        at java.time.LocalDate.get0(Unknown Source)
+        at java.time.LocalDate.getLong(Unknown Source)
+        at java.time.format.DateTimePrintContext.getValue(Unknown Source)
+        at java.time.format.DateTimeFormatterBuilder$NumberPrinterParser.format(Unknown Source)
+        at java.time.format.DateTimeFormatterBuilder$CompositePrinterParser.format(Unknown Source)
+        at java.time.format.DateTimeFormatterBuilder$CompositePrinterParser.format(Unknown Source)
+        at java.time.format.DateTimeFormatterBuilder$CompositePrinterParser.format(Unknown Source)
+        at java.time.format.DateTimeFormatter.formatTo(Unknown Source)
+        at java.time.format.DateTimeFormatter.format(Unknown Source)
+        at java.time.LocalDate.format(Unknown Source)
+        at Test.main(Test.java:6)
+
+    Solution : Inorder to resolve the issue by ignoring the time, DateTimeFormatter.ISO_DATE_TIME has to be defined as 
+               DateTimeFormatter.ISO_DATE. 
+                    (Use ISO_DATE instead of ISO_DATE_TIME)
+
+                import java.time.*;
+                import java.time.format.*; 
+
+                class Test {
+                    public static void main(String[] args) {
+                        String date = LocalDate.parse("2014-05-04").format(DateTimeFormatter.ISO_DATE);
+                        System.out.println(date); //output :  2014-05-04
+                    }
+                }
+    
+    Considering both and time : 
+
+        import java.time.*;
+        import java.time.format.*; 
+
+        class Test {
+            public static void main(String[] args) {
+                String dateTime = LocalDateTime.parse("2014-05-04T13:45:45.000").format(DateTimeFormatter.ISO_DATE_TIME);
+                System.out.println(dateTime); //output :  2014-05-04T13:45:45
+            }
+        }
+
+        * In above example if we use DateTimeFormatter.ISO_DATE instead of DateTimeFormatter.ISO_DATE_TIME,
+          then this output will be 2014-05-04 and does not throw any runtime errors or compile time errors.
+          (That is because even if we have specified time, we have not used a formetter which includes time) 
+
+.................................................................................................................................
+
+2. Given the code fragment. What is the result ?
+
+    import java.time.*;
+    import java.time.format.*;
+
+    public class Test {
+        public static void main(String[] args) {
+            LocalDate date1 = LocalDate.now();
+            LocalDate date2 = LocalDate.of(2018,4,15);
+            LocalDate date3 = LocalDate.parse("2018-04-15",DateTimeFormatter.ISO_DATE);
+            System.out.println("date1 is : "+date1);
+            System.out.println("date2 is : "+date2);
+            System.out.println("date3 is : "+date3);
+        }
+    }
+
+    a.
+        date1 is : 2018-04-15 (This has to be today's date. Your local date)
+        date3 is : 2018-04-15
+        date2 is : 2018-04-15
+
+    b.
+        date1 is : 04/15/2018 (This has to be today's date. Your local date)
+        date3 is : 2018-04-15
+        date2 is : Apr 15,2018
+
+    c. Compilation fails
+
+    d. A DateParseException is thrown at runtime
+
+    Answer : a
+.................................................................................................................................
+
+3. What is the output of below code ?
+
+    import java.time.*;
+    import java.time.format.*;
+
+    public class Test {
+        public static void main(String[] args) {
+            LocalDate date = LocalDate.parse("2018-04-15",DateTimeFormatter.ISO_DATE);
+            LocalDate datetime = LocalDate.parse("2018-04-15T12:13:12.666",DateTimeFormatter.ISO_DATE_TIME);
+            System.out.println("date is : "+date);
+            System.out.println("datetime is : "+datetime);
+        }
+    }
+
+    a.  date is : 2018-04-15
+        datetime is : 2018-04-15T12:13:12.666
+
+    b. Throws a runtime exception
+
+    c.  date is : 2018-04-15
+        datetime is : 2018-04-15
+    
+    d. Non of the above
+
+    Answer : c 
+    
+    Explanation : 
+        Even though we are providing time values and then formatting datetime reference with DateTimeFormatter.ISO_DATE_TIME,
+        reference type of datetime is LocalDate which does nto consider the time.
+        So LocalDate cannot hold time elements
+
+.................................................................................................................................
+
+4. What is the output of below code ?
+
+    import java.time.*;
+    import java.time.format.*;
+
+    public class Test {
+        public static void main(String[] args) {
+            LocalDateTime dt = LocalDateTime.of(2014,7,31,1,1);
+            dt.plusDays(30);
+            dt.plusMonths(1);
+            System.out.println(dt.format(DateTimeFormatter.ISO_DATE));
+        }
+    }
+
+    a. 2014-07-31
+    b. 07-31-2014
+    c. 2014-09-30
+    d. An exception is trown at runtime
+
+    Answer : a 
+
+    Explanation :
+        LocalDateTime is an Immutable date-time object that represents a date time (Same applies to LocalDate, LocalTime as well)
+
+        dt.plusDays(30);
+        dt.plusMonths(1);
+            With above two changes, new objects will be created and dt is always the same. We can provide reference values and access the new
+            objects (example : LocalDateTime newDt = dt.plusDays(30); )
+
+
+    * LocalDate, LocalTime and LocalDateTime are immutable objects
+        - Which means that, once we create an object we can't change the content. 
+        - If we are trying to chage the content, automatically with those changes a new object will be created
+
+.................................................................................................................................
+
+5. What is the output of below code ?
+
+    import java.time.*;
+    import java.time.format.*;
+
+    public class Test {
+        public static void main(String[] args) {
+            LocalDateTime dt = LocalDateTime.of(2014,7,31,1,1);
+            System.out.println(dt.format(DateTimeFormatter.ISO_DATE));
+        }
+    }
+
+    a. 2014-07-31
+    b. 2014-07-31T01:01:00
+    c. Compilation fails
+    d. An exception is thrown at runtime
+
+    Answer : b 
+
+    Explanation :
+        Even if we have used reference type LocalDateTime and provided both date and time values, the formatter
+        is considering about date (DateTimeFormatter.ISO_DATE) but not both (DateTimeFormatter.ISO_DATE_TIME has to be there to format time)
+
+    Example to understand :
+
+        import java.time.*;
+        import java.time.format.*;
+
+        public class Test {
+            public static void main(String[] args) {
+                LocalDateTime dt = LocalDateTime.of(2014,7,31,1,1);
+
+                System.out.println(dt.format(DateTimeFormatter.ISO_DATE)); //output is 2014-07-31
+                System.out.println(dt.format(DateTimeFormatter.ISO_DATE_TIME)); // output is 2014-07-31T01:01:00
+            }
+        }
+
+.................................................................................................................................
+

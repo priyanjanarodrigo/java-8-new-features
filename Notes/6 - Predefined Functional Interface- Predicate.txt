@@ -1,0 +1,270 @@
+________________________________________________________________________________________________________________________
+- Predefined Functional Interface- Predicate -
+------------------------------------------------------------------------------------------------------------------------
+
+ * Quick recap : 
+
+    - Purpose of default methods inside interfaces: 
+        * Adding new methods to the interfaces (extending interface functionality) without effecting implementation classes
+
+    - Purpose of static methods inside interfaces:
+        * To define general utility methods (which are inappropiate as class objects) inside inteface, we can declare with static modifier.
+          (Interface static methods)
+            ex : 
+                static void sum(int a,int b){
+                    System.out.print(a+b);
+                }
+
+                Above method does not talks about an outer class or class object. So putting it inside a class is costly 
+
+        * Interface static methods are not by default available to the implementation classes. No matter whether it is an implementation 
+          class or not interface static methods are accessible. But compulsory we have to access them with the interface name only.
+            
+            Ex : Interf.sum(2,2); 
+
+
+1. Predefined functional interfaces
+========================================================================================================================
+
+* To call lambda expressions, functional interfaces are required. There are many functional interfaces introduced in Java
+  in java.util.function package
+
+        Predicate
+        Function
+        Consumer
+        Supplier and etc.
+
+    - Two argument pre-defined functional interfaces
+        BiPredicate
+        BiFunction
+        BiConsumer and etc.
+    
+    - Primitive functional interfaces
+        IntPredicate
+        IntFunction
+        IntComsumer and etc.
+ 
+
+ 1.1 Predicate
+ -------------------------------------------------------------
+
+-  Prototype of Predicate functional interface : 
+
+    interface Predicate<T> {
+        public abstract boolean test(T t);
+    }
+
+    * Input type <T> we must always specify because it changes from one to another depending on the requirement
+    * But return type is boolean and it is always the same
+    * If we need to use conditional ckecking usinglambda expressions we can use Predicate<T t> functional interface
+    * Predicate can be combined with and(Predicate p), or(Predicate p)  methods and inverted with negate() method
+    * From 1.8 version onwards, we can use predicate convept with lambda expression so we ca have concise code
+
+    * Example 1 : 
+    ....................................................................................................................
+
+        - Traditional implementation 
+        ----------------------------------------
+
+            import java.util.function.*;
+            
+            class MyClass implements Predicate<Integer> {
+
+                public boolean test(Integer I){
+                    return I%2==0;
+                }
+
+                public static void main(String[] args) {
+                    MyClass mc =new MyClass();
+                    System.out.println(mc.test(12));
+                } 
+            }
+
+        - Lambda expression implementation 
+        ----------------------------------------
+
+            import java.util.function.Predicate; // import statement is important and must be defined
+
+            class MyClass{
+                public static void main(String[] args) {
+
+                    //Predicate of which input we are providing is defined with the generic
+                    Predicate<Integer>  p1 =  I -> I%2==0;
+
+                    System.out.println(p1.test(12));//true
+                    System.out.println(p1.test(15));//false
+                }
+            } 
+
+
+    * Example 2 : Implementing Predicate with Lambda expressions for multiple conditional checking with conside code
+    ....................................................................................................................
+
+        import java.util.function.Predicate;
+        import java.util.List;
+        import java.util.ArrayList;
+
+        class Employee { 
+            public int id;
+            public String name;
+            public double salary;
+            public boolean isHavingGf;
+
+            public Employee(){}
+
+            public Employee(int id,String name,double salary,boolean isHavingGf) {
+                this.id=id;
+                this.name=name;
+                this.salary=salary;
+                this.isHavingGf=isHavingGf;
+            }
+        }
+
+        class Test {
+            public static void main(String[] args) {
+
+                List<Employee> employeesList = new ArrayList<Employee>();
+
+                employeesList.add(new Employee(1,"Luvigi",35600d,true));
+                employeesList.add(new Employee(2,"Sanith",150000,true));
+                employeesList.add(new Employee(3,"Akila",125000,false));
+                employeesList.add(new Employee(4,"Tharindu",180000,false));
+                
+                Predicate<Employee> p = e -> e.salary>50000 && e.isHavingGf;
+                
+                for(Employee employee : employeesList) {
+                    System.out.println(p.test(employee));
+                }
+            }
+        }
+
+
+    * Example 3 : Write a predicate who checks whether the length of a String is greater than five or not
+    ....................................................................................................................
+
+        import java.util.function.Predicate;
+        
+        class Test {
+            public static void main(String[] args) {
+
+                Predicate<String> p = s -> s.length() > 5;
+
+                String[] sArray = {"Luvigi","Shalini","Namal","Sanith Ashan","Tharindu","Hi"};
+
+                for(String stringObj : sArray) {
+                    System.out.println(p.test(stringObj));
+                }               
+            }
+        }
+
+
+    * Example 4 : 
+    ....................................................................................................................
+
+    import java.util.function.Predicate;
+    import java.util.ArrayList;
+
+    class Employee {
+        String name;
+        double salary;
+
+        Employee(String name, double salary) {
+            this.name=name;
+            this.salary=salary;
+        }
+    }
+
+    class Test {
+        public static void main(String[] args) {
+
+            ArrayList<Employee> employeeList = new ArrayList<Employee>();
+            employeeList.add(new Employee("Durga",1000d));
+            employeeList.add(new Employee("Ravi",2000d));
+            employeeList.add(new Employee("Siva",3000d));
+            employeeList.add(new Employee("Mahesh",4000d));
+            employeeList.add(new Employee("Adarsh",5000d));
+            employeeList.add(new Employee("Sagar",6000d));
+
+            Predicate<Employee> p = e -> e.salary > 3000d;
+
+            for(Employee employee : employeeList) {
+                if(p.test(employee)) {
+                    System.out.println(e1.name+" , "+e1.salary+" has a salary greater than 3000");
+                }
+            }
+        }
+    } 
+
+    * Example 4 : Predicate joining
+    ....................................................................................................................
+
+    - Combining multiple predicates into a single predicate 
+    ---------------------------------------------------------
+
+        - p1 - To check whether the number is even or not
+        - p2 - To check whether the number is greater than 10 or not 
+
+        - with the support of following methods, we can perform predicate joining
+            and(Predicate p)
+            or(Predicate p) 
+            negate() //inverse of the predicate (ex: p1.negate())
+
+        import java.util.function.Predicate;
+
+        class Test {
+            public static void main(String[] args) {
+                int[] numbersArray = {0,5,10,15,20,25,30,35};
+
+                // Creating a predicate to check whether the number is even or not
+                Predicate<Integer> p1 = i -> i%2==0;
+
+                // Creating a predicate to check whether the number is greater than 10 or not
+                Predicate<Integer> p2 = i -> i>10;
+
+                System.out.println("The numbers which are even and greater than 10 are : ");
+                for(int number : numbersArray) {
+                    
+                    if(p1.and(p2).test(number)) {
+                         System.out.println(number);
+                    }
+                }
+
+                System.out.println("The numbers which are either even or greater than 10 are : ");
+                for(int number : numbersArray) {
+
+                    if(p1.or(p2).test(number)) {
+                         System.out.println(number);
+                    }
+                }
+
+                System.out.println("The numbers which are not even are : ");
+                for(int number : numbersArray) {
+                    
+                    if(p1.negate().test(number)) {
+                         System.out.println(number);
+                    }
+                }
+
+                System.out.println("The numbers which are not greater than 10 are : ");
+                for(int number : numbersArray) {
+                    
+                    if(p2.negate().test(number)) {
+                         System.out.println(number);
+                    }
+                }
+
+                System.out.println("The numbers which are not even or not greater than 10 are : ");
+                for(int number : numbersArray) {
+
+                    if(p1.negate().and(p2.negate()).test(number)) {
+                         System.out.println(number);
+                    }
+                }
+            }
+        }
+
+2. Function functional interfaces
+========================================================================================================================
+
+ * If out requirement is to input some value , perform some operations and produce some result, then we can use
+   Function functional interfaces. (Predicate FI always returns a boolean value but Function FI can return different types)

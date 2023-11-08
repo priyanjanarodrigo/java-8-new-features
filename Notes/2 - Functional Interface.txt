@@ -1,0 +1,283 @@
+________________________________________________________________________________________________________________________
+- Functional Interfaces -
+------------------------------------------------------------------------------------------------------------------------
+
+1. Definition
+========================================================================================================================
+    What is a functional interface (FI = Functional Interface) ?
+        * An interface which contains single abstract method.
+
+        Runnable        ==> run()
+        Comparable      ==> compareTo()
+        Comparator       ==> compare()
+        ActionListener  ==> actionPerformed()
+        Callable        ==> call()
+
+        * All these interfaces are by default considered as functional interfaces. Each of these interface
+          contains single abstract method (ine abstract method)
+
+        * If we want to invoke a lambda expression, compulsory a functional interface is required. The job of
+          functional interface is to invoke lambda expression
+
+2. Lambda expression examples wrap up
+========================================================================================================================
+
+    -------------------------------------------------------------
+    public void sayHello(){
+        System.out.println("Hello");
+    }
+
+    () -> System.out.println("Hello");
+
+    -------------------------------------------------------------
+    public void add(int a , int b){
+        System.out.println(a+b");
+    }
+
+    (int a,int b) -> System.out.println(a+b");
+
+    // If compiler can guess the parameter types automatically
+    (a,b) -> System.out.println(a+b");
+
+    -------------------------------------------------------------
+    public void squareIt(int n) {
+        return n*n;
+    }
+
+    (int n) -> { return n*n; }
+    (n) ->  return n*n;
+    (n)->n*n;
+
+    // brackets are optional if only one argument is there
+    n-> n*n;
+    -------------------------------------------------------------
+
+3. Calling lambda expressions
+========================================================================================================================
+    * If we want to call a lambda expression, compulsory we need to go for Functional Interfaces
+      (FI is an interface which contains single abstract method (SAM))
+
+
+    * From Java 1.8 version onwards we can have default methods and static methods within interfaces as well.
+      Is it possible to have default methods and static methods in Functional Interfaces ?
+
+         - Restriction is applicable only for abstract methods but not for default or static methods.
+           You can take any number of default methods and static methods but should contain exactly one
+           abstract method.
+
+    * Example :
+        @FunctionalInterface
+        Interface MyInterface{
+            public void m1();
+
+            // default method
+            default void m2(){
+            }
+
+            // static method
+            public static void m3(){
+            }
+        }
+
+        - Is this a functional interface above?
+            Yes. There is one abstract method which is m1(). Others are default and static methods.
+
+    * @FunctionalInterface annotation :
+        @FunctionalInterface annotation came in Java 1.8 version.Used to explicitly specify an interface as a functional
+        interface . This is applied on top of interface definition.This explicitly defines the annotated interface as a
+        functional interface and if the developer is violating the rules of FI,then it will be notified by the compiler.
+        But this is not mandatory.
+
+4. FunctionalInterfaces with respect to Inheritance concept
+========================================================================================================================
+
+    * Example :
+
+        ................................................................................................................
+        @FunctionalInterface
+        interface A {
+            public void m1(); -------------------
+        }                                       |
+                                                |  public void m1() is by default available to interface B as an abstract
+        @FunctionalInterface                    |  method with inheritance.
+        interface B extends A {                 |
+                    <----------------------------
+        }
+
+        * For child interface B, automatically the parent's (interface A) abstract is by default available.
+
+        * If the parent interface is a functional interface, then by default the child interface is also a
+          functional interface if we are not providing any abstract method within child interface
+        ................................................................................................................
+
+        @FunctionalInterface
+        interface A {
+            public void m1(); -------------------
+        }                                       |  * This is also valid (kind of overriding)
+                                                |  public void m1() is by default available to interface B as an abstract
+        @FunctionalInterface                    |  method with inheritance. Considered like one abstract method which is
+        interface B extends A {                 |  overridden
+            public void m1() <-------------------
+        }
+        ................................................................................................................
+
+        @FunctionalInterface
+        interface A {
+            public void m1(); -------------------
+        }                                       |  * This is invalid. Because, N now the child interface contains two
+                                                |    abstract methods. m1() from parent and m2(), Simply a functional
+        @FunctionalInterface                    |    interface cannot have two abstract method but one
+        interface B extends A {                 |
+            public void m2() <-------------------
+        }
+
+        CE : Unexpected @FunctionalInterface annotation
+             @FunctionalInterface
+             ^
+                B is not a functional interface
+                multiple non-overriding abstract methods found in interface B
+
+        ................................................................................................................
+
+        @FunctionalInterface
+        interface A {
+            public void m1();               * This is valid. Here child interface has not been annotated with
+        }                                     @FunctionalInterface. Therefore, only the parent interface A is a functional
+                                              interface and child interface B is a normal interface which can contain
+        interface B extends A {               any number of abstract methods. Here iit contains m1() and m2() .
+            public void m2()
+        }
+
+        ................................................................................................................
+
+        * @FunctionalInterface annotation is optional. Whether we are declaring it nor not, if the interface contains
+          only one abstract method. (Single Abstract Method) it is a functional interface
+
+5. Lambda expression with functional interfaces
+========================================================================================================================
+
+    ....................................................................................................................
+
+    * Example 1 :
+
+        * Tradition implementations
+        -------------------------------------------------------------
+        interface Interf {
+            public void m1();
+        }
+
+        class Demo implements Interf {
+
+            //Implementation of interface abstract method
+            public void m1(){
+                System.out.println("Hello...");
+            }
+        }
+
+        class Test {
+            public static void main(String[] args) {
+                //Approach 1
+                Demo d=new Demo();
+                d.m1();
+
+                //Approach 2
+                Interf i=new Demo();
+                i.m1();
+            }
+        }
+
+        * Lambda expression related implementations
+        -------------------------------------------------------------
+
+        @FunctionalInterface // This is optional
+        interface Interf {
+            public void m1(); <---------------------------------------------------------------
+        }                                                                                    |
+                                                                                             |
+        class Test {                                                                         |
+            public static void main(String[] args) {                                         |
+                                                                                             |
+                // This is going to implement single abstract method if Interf - m1()        |
+                Interf i = () -> System.out.println("Hello... By Lambda Expressions"); -------
+                i.m1();
+            }
+        }
+
+        * Functional interface is used to provide a reference to a lambda expression
+
+    ....................................................................................................................
+
+    * Example 2 :
+
+        * Tradition implementations
+        -------------------------------------------------------------
+
+        interface Interf {
+            public void add(int a,int b);
+        }
+
+        class Demo implements Interf {
+            public void add(int a, int b) {
+                System.out.println("The sum is : "+(a+b));
+            }
+        }
+
+        class Test {
+            public static void main(String[] args) {
+                Interf i = new Demo();
+                i.add(10,20);
+            }
+        }
+
+        * Lambda expression related implementations
+        -------------------------------------------------------------
+
+        @FuncttionalInterface
+        interface Interf {
+            public void add(int a, int b);
+        }                      ^     ^
+                               |     |
+                               |     ---------------------------
+                               --------------------------      |
+                                                        |      |
+        class Test {                                    |      |
+            public static void main(String[] args) {    |      |
+                            -----------------------------      |
+                            |                                  |
+                            |  ---------------------------------
+                            |  |
+                Interf i = (a, b) -> System.out.println("The sum is : "+(a+b));
+                i.add(10,20);
+                i.add(100,220);
+                i.add(12,65);
+            }
+        }
+
+        * In above example, a and b parameters passed by the lambda expression is mapped to the abstract method (add)
+          parameters in functional interface "Interf". Therefore, compiler is aware of the data type of the parameters
+          passed and we do not need to explicitly define the data type of parameter as (int a, int b). It can be
+          simplified as (a,b) - > ...;
+
+        * No need to explicitly specify the method name also as a functional interface only contains only one abstract
+          method inside
+
+        * No runtime performance issues are occurred as the program compiles only once
+
+        * Wherever functional interface are there, there only we can use lambda expressions
+
+        * If the functional interface concept is not there, then we cannot use lambda expressions. Because lambda
+          expressions are always associated with functional interfaces concept
+
+        * if there are more than one abstract method in the functional interface as follows,
+
+            public void add(int a, int b);
+            public void multiply(int a, int b);
+
+            Then the compiler cannot identify what method to be executed by the lambda expression
+
+            (a, b) -> System.out.println("The sum is : "+(a+b));
+
+            That is why there can be only one abstract method in a functional interface
+
+        * Lambda expressions is a very specific concept and it is applicable only for functional interfaces
+    ....................................................................................................................

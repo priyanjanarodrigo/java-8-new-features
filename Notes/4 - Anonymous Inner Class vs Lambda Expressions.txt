@@ -1,0 +1,375 @@
+________________________________________________________________________________________________________________________
+- Anonymous Inner Class vs Lambda Expressions -
+------------------------------------------------------------------------------------------------------------------------
+
+1. Applicability of lambda expressions in our own classes
+========================================================================================================================
+
+    1.1  Example 1 : Intension of below program is to sort a list of employees based on their employee numbers
+                     In order to have more concise code, we are using lambda expressions for implementing the custom Comparator
+
+    import java.util.*;
+
+    class Employee {
+        String name;
+        int eNo;
+
+        public Employee(String name, int eNo) {
+            this.name=name;
+            this.eNo=eNo;
+        } 
+
+        public String toString(){
+            return this.eNo+" : "+this.name;
+        }
+    }
+
+    class Test {
+        public static void main(String[] args) {
+            
+            ArrayList<Employee> l = new ArrayList<Employee>();
+            l.add(new Employee("Luvigi",12312));
+            l.add(new Employee("Shalini",76532));
+            l.add(new Employee("Namal",9865));
+            l.add(new Employee("Sanith",2345));
+            l.add(new Employee("Aruna",76));
+            
+            System.out.println(l);
+            Collections.sort(l,(e1,e2)-> (e1.eNo<e2.eNo) ? -1 : (e1.eNo>e2.eNo) ? +1 : 0);
+            System.out.println(l);
+            
+            /*
+                Can also be implemented as
+
+                Comparator c = (e1,e2)-> (e1.eNo<e2.eNo) ? -1 : (e1.eNo>e2.eNo) ? +1 : 0);
+                Collections.sort(l,c);
+            */
+
+            // Sorting the list of employees according to the alphabetical order of their names
+            Collections.sort(l,(e1,e2) -> e1.name.compareTo(e2.name));
+            System.out.println(l);
+            
+        }
+    }
+    ................................................................................................................
+
+    * If we want to sort the list of employees according to the alphabetical order of their names, we can implement
+      as follows
+
+    * String object "compareTo()" method is always applicable for alphabetical order only
+
+        Collections.sort(l,(e1,e2) -> e1.name.compareTo(e2.name));
+
+    * Comparable and Comparator are there in Collection framework for sorting
+
+    * Issue :  Comparator c = (e1,e2) -> e1.name.compareTo(e2.name); Throws a CE : 
+        Test.java:33: error: cannot find symbol
+        Comparator c = (e1,e2) -> e1.name.compareTo(e2.name);
+                                                            ^
+        symbol:   variable name
+        location: variable e2 of type Object
+        Test.java:33: error: cannot find symbol
+            Comparator c = (e1,e2) -> e1.name.compareTo(e2.name);
+                                        ^
+        symbol:   variable name
+        location: variable e1 of type Object
+        Note: Test.java uses unchecked or unsafe operations.
+        Note: Recompile with -Xlint:unchecked for details.
+        2 errors
+    ................................................................................................................
+   
+
+2. Anonymous inner classes vs Lambda expressions
+========================================================================================================================
+
+ * Lambda expressions concept is not a replacement for anonymous inner classes. Anonymous inner classes are more powerful 
+   than lambda expressions
+
+ * What is an anonymous inner class ? 
+    A class without having a name 
+
+  - Example 1 : 
+  -----------------------------------------------------------------------
+
+    * Declaring and instanciating a new Thread class Object - Usual way
+        Thread t = new Thread();
+
+    * Writting a class that extends Thread class which is not having a name. Which is an anonymous inner class
+    Thread t = new Thread() {
+        //code goes here
+    };
+
+    ................................................................................................................
+
+    Runnable r = new Runnable();  // INVALID : CE (Runnable is an interface and cannot create objects)
+
+    * Creating an anonymous class to provide implementation for Runnable inteface. This is not Runnable object but the
+      anonymous implementation class object. Which is nothing but an anonymous inner class
+
+    Runnable r = new Runnable() {
+        //code goes here
+    };
+
+    * Anonymous inner classes can extend another class or can implement an interfaces
+
+    * Instead of taking a separate implementation class, wherever that functionality is required, it is possible to define an
+      anonymous inner class
+
+
+  - Example 2 : Implementing thread concept with anonymous inner classes
+  -----------------------------------------------------------------------
+
+    class Test {
+        public static void main(String[] args){
+            
+            /* This "r" is not a Runnable object but the object of it's an implementation class (anonymous class object).
+             And that implementation class is not having any name. Which is an anonymous class */
+             
+            Runnable r = new Runnable() {
+                public void run() {
+                    for(int i=0;i<10;i++){
+                        System.out.println("Child Thread");
+                    }
+                }
+            }; // ; Semicolon is important at the end of anonymous inner class definition
+
+            Thread t = new Thread(r);
+            t.start();
+
+            for(int i=0;i<10;i++){
+                System.out.println("Main Thread");
+            }
+
+        }// end of main method
+    } 
+
+    * Here Runnable interface has been implemented by an anonymous inner class. Runnable is a functional interface as 
+      we already know. Therefore, this anonymous inner class can be replaced with a lambda expression without any issue.
+      Lambda expresion related implementation is as follows.
+
+        Runnable r = () -> {
+            for(int i=0; i<10; i++) {
+                System.out.println("Child Thread");
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
+    
+    * IMPORTANT !!
+         - Anonymous classes are more powerful than lambda expresssions
+
+         - Because, no matter how many abstract methods an inteface consists of, those can be implemented by an anonymous inner class.
+
+         - Lambda expressions are only applicable for implementing functional interfaces
+
+         - Which means no matter whether it is a functional interface or not, it can be implemented by an anonymous
+           inner class
+
+         - Example : 
+         ................................................................................................................
+            inteface A {
+                // A is not a functional interface and consists of two abstract methods
+                public void m1();
+                public void m2();
+            }
+
+            class Test {
+                public static void main(String[] args) {
+                    A a = new A {
+                        public void m1() {
+                            // implementation of m1()
+                        }
+
+                        public void m2() {
+                            // implementation of m2()
+                        }
+                    }
+                }
+            }
+
+         - Above implementation is not possible with lambda expressions as A is not a functional interface.
+
+         - Wherever an anonymous class is there, it may or may not be possible to implement with a lambda expression. Because 
+           the implemented inteface has to be a functional interface.
+        
+         - But wherever lambda expressions are there, it is possible to be implemented with anonymous inner classes.
+           That is why Anonymous inner class concept is more powerful than lambda expressions
+
+         - Anonymous inner classes != Lambda expressions (Both are not equal)
+
+         - If an anonymous inner class implements an interface that contains single abstract method, then only we can replace that
+           anonymous inner class with a lambda expression
+
+         Anonymous inner class
+         -----------------------------------------------
+         - Anonymous inner class can extend a normal class
+         - Anonymous inner class can implement an abstract class
+         - Anonymous inner class implement can implement interface which contains any number of abstract methods
+        
+        Lambda Expressions
+        -----------------------------------------------
+         - Lambda expression can only provide implementation to functional interfaces. 
+           (Interfaces which contain single abstract method)
+
+        (* Some more extra things are there related to these as well - Search Google)
+
+ * Questions & Answers : 
+    
+    1. Which of the following are true regarding to lambda expressions ?
+
+        a. If lambda expression contains multiple parameters, then these parameters are separated with comma (,)
+        b. A lambda expression can have any number of arguments including zero number
+        c. Lambda expression body can contain multiple statements and we should enclose within curly braces { }
+        d. If a lambda expression contains only one argument, then paranthesies are optional
+
+        Answer(s) : All of the above are true (a,b,c,d)
+    
+    2. Which of the following are valid regarding functional interfaces ? 
+
+        a. Functional interface should contain only one abstract method
+        b. Functional interface should contain only one static method
+        c. Functional interface can contain any number of abstract methods
+        d. Functional interface should contain only one default method
+
+        Answer : a
+
+    3. Which of the following are true ? 
+
+        a. The main objective of lambda expressions is to enable functional programming in java
+        b. Lambda expressions concept is only applicable for java but not for other languages 
+        c. With lambda expressions we can write very concise code so that readability of the applciation will be improved
+        d. Functional interface reference can be used to hold lambda expressions
+
+        Answer : a,c and d
+
+    4. Consider the code : 
+
+        interface Interf {
+            public int product(int a, int b);
+        }
+        
+        Which of the following are valid lambda expressions which implement interf interface
+
+        a. Interf  i = () -> return a*b; // Wrong - Two int parameters are expected but not providing any. And also return statement must be enclosed with {}
+        b. Interf  i = (a,b) -> return a*b; // Wrong -  return statement must be enclosed with {}
+        c. Interf  i = (int a, int b) -> a*b;
+        d. Interf  i = (a,b) -> a*b;
+
+        Answer : c, d
+
+    5. In which of the following we will not get any compile time error ? 
+
+        a. 
+            @FunctionalInterface
+            interface A { 
+                public void m1();
+                public void m2();
+            }
+        --------------------------------------------
+        b. 
+            @FunctionalInterface
+            interface A { 
+                default void m1() {
+
+                }
+            }
+        --------------------------------------------
+        c. 
+            @FunctionalInterface
+            interface A { 
+                public void m1();
+            }
+        --------------------------------------------
+        d. 
+            @FunctionalInterface
+            interface A { 
+            
+            }
+        --------------------------------------------
+
+        Answer : c
+
+    6. Consider the code : 
+
+        interface Interf {
+            public int sum(int a, int b);
+        }
+
+        Which of the following are valid lambda expressions which implements Interf interface
+
+        a. Interf i = (int a, int b) -> a+b;
+        b. Interf i = (int a, int b) -> { return a+b; };
+        c. Interf i = (int a, int b) -> { a+b; }; // With curly braces it is compulsory to use return keyword
+        d. Interf i = (int a, int b) -> return a+b; // Without curly braces we must not use return keyword
+
+        Answer(s) : a,b
+    
+    7. Which of the following are valid lambda expressions ? 
+
+        a. Interf i = x,y -> x*y; // Multiple parameters must be enclosed with ()
+        b. Interf i = (x) -> x*x;
+        c. Interf i = x -> x*x;
+        d. Interf i = (x,y) -> x+y;
+
+        Answer(s) : b,c,d
+    
+    8. Consider the inteface :
+
+        @FunctionalInterface
+        interface A {
+            public void m1();
+        }
+
+        Which of the fillowing are functional interfaces ? 
+
+        a. 
+            @FunctionalInterface
+            interface B extends A { 
+                public void m1();
+            }
+        --------------------------------------------
+        b. 
+            @FunctionalInterface
+            interface B extends A { 
+                public void m2();
+            }
+        --------------------------------------------
+        c. All the above
+        --------------------------------------------
+        d. 
+            @FunctionalInterface
+            interface B extends A { 
+            
+            }
+        --------------------------------------------
+        
+        Answer(s) : a, d
+    
+    9.  Consider the code :
+
+        interface Interf {
+            public int suare(int i);
+        }
+
+        Which of the fillowing are valid lambda expressions which implements Interf interface ? 
+
+        a. Interf i = n -> { return n*n }; // Internal statement should be ended with semicolon and also lambda expression must be ended with semicolon
+        b. Interf i = n -> { return n*n; };
+        c. Interf i = n -> return n*n; // return statement must be inside {}
+        d. Interf i = n ->  { n*n; }; // within {} it is must to have return statement
+        
+        Answer(s) : b
+
+    10. Which of the following are true ? 
+
+        a. Only for functional interfces we can write lambda expression implementation
+        b. For any interface we can write lambda expression implementation
+        c. Functional interfaces should be declared with @FunctionalInterface annotation // @FunctionalInterface is optional
+        d. If any interface contains single abstract method, then it is always a functional interface whether we are using
+           @FunctionalInterface annotation or not
+
+        Answer(s) : a, d
+
+
+        

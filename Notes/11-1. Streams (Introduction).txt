@@ -1,0 +1,245 @@
+______________________________________________________________________________________________________________________________________
+- Streams (Introduction) -
+--------------------------------------------------------------------------------------------------------------------------------------
+
+1. Introduction to Streams
+========================================================================================================================
+
+ * Simply, we can use streams concept to process objects of a Colelction
+ * Streams concept is helpfull for pweforming bulk operation on collections with reduced the lenght of the code
+
+ * What is Stream ?
+    
+    - Definition 1 : 
+        A Stream in Java can be defined as a sequence of elements from a source that supports aggregate operations on them. 
+        The source here refers to a Collection, Array or I/O resource which provides data to a Stream.
+
+        Stream keeps the ordering of the data as it is in the source. The aggregate operations or bulk operations 
+        are operations which allow us to express common manipulations on stream elements easily and clearly.
+
+                                                                                     - Source : (HowToDoInJava,2016) -
+ .................................................................................................................................
+
+    - Definition 2 : 
+        Stream represents a sequence of objects from a source, which supports aggregate operations. 
+        Following are the characteristics of a Stream −
+
+        1. Sequence of elements  
+            − A stream provides a set of elements of specific type in a sequential manner. A stream gets/computes 
+              elements on demand. It never stores the elements.
+
+        2. Source 
+            − Stream takes Collections, Arrays, or I/O resources as input source.
+
+        3. Aggregate operations 
+            - Stream supports aggregate operations like filter, map, limit, reduce, find, match, and so on.
+
+        4. Pipelining 
+            − Most of the stream operations return stream itself so that their result can be pipelined. 
+              These operations are called intermediate operations and their function is to take input, process them, 
+              and return output to the target.            
+              collect() method is a terminal operation which is normally present at the end of the pipelining 
+              operation to mark the end of the stream.
+
+        5. Automatic iterations 
+            − Stream operations do the iterations internally over the source elements provided, 
+              in contrast to Collections where explicit iteration is required.
+
+                                                                                     - Source : (tutorialspoint.com,2019) -
+  .................................................................................................................................
+  
+
+ * Example programs 1 : Basic idea of filtering with streams
+-----------------------------------------------------------------------
+
+    - Requirement is adding the even numbers avaialable in ArrayList allNumbersList to a new ArrayList called evenNumbersList
+
+    - Without streams concept (Until 1.7version) - Traditional approach
+    .................................................................................................................................
+
+        import java.util.List;
+        import java.util.ArrayList;
+
+        class Test {
+            public static void main(String[] args) {
+                ArrayList<Integer> allNumbersList = new ArrayList<Integer>();
+                allNumbersList.add(0);
+                allNumbersList.add(10);
+                allNumbersList.add(20);
+                allNumbersList.add(5);
+                allNumbersList.add(15);
+                allNumbersList.add(25);
+                System.out.println(allNumbersList);
+
+                List<Integer> evenNumbersList = new ArrayList<Integer>();
+
+                for(Integer number : allNumbersList) {
+                    if(number%2==0) {
+                        evenNumbersList.add(number);
+                    }
+                }
+
+                System.out.println(evenNumbersList);
+            }
+        }
+
+    - With streams concept (from 1.8version onwards) - New approach
+    .................................................................................................................................
+
+        import java.util.List;
+        import java.util.ArrayList;
+        import java.util.stream.*;
+
+        class Test {
+            public static void main(String[] args) {
+                ArrayList<Integer> allNumbersList = new ArrayList<Integer>();
+                allNumbersList.add(0);
+                allNumbersList.add(10);
+                allNumbersList.add(20);
+                allNumbersList.add(5);
+                allNumbersList.add(15);
+                allNumbersList.add(25);
+                System.out.println(allNumbersList);
+
+                List<Integer> evenNumbersList = allNumbersList.stream().filter(I->I%2==0).collect(Collectors.toList());
+                System.out.println(evenNumbersList);
+            }
+        }
+
+        - Here filter() method will filter the elements in the stream based on the provided condition inside filter method
+        - Condition is providede as a Predicate inside filter method 
+
+ * Example programs 2 : Modifying the existing elements in a collection
+ -----------------------------------------------------------------------
+
+    - Requirement is to get the doubled value of each element in ther original collection
+
+    - Without streams concept (Until 1.7version) - Traditional approach
+    .................................................................................................................................
+
+        import java.util.List;
+        import java.util.ArrayList;
+
+        class Test {
+            public static void main(String[] args) {
+                ArrayList<Integer> allNumbersList = new ArrayList<Integer>();
+                allNumbersList.add(0);
+                allNumbersList.add(10);
+                allNumbersList.add(20);
+                allNumbersList.add(5);
+                allNumbersList.add(15);
+                allNumbersList.add(25);
+                System.out.println(allNumbersList);
+
+                List<Integer> doubledValuesList = new ArrayList<Integer>();
+
+                for(Integer number : allNumbersList) {
+                    doubledValuesList.add(number*2);
+                }
+
+                System.out.println(doubledValuesList);
+            }
+        }
+
+    - With streams concept (from 1.8version onwards) - New approach
+    .................................................................................................................................
+
+        import java.util.List;
+        import java.util.ArrayList;
+        import java.util.stream.*;
+
+        class Test {
+            public static void main(String[] args) {
+                ArrayList<Integer> allNumbersList = new ArrayList<Integer>();
+                allNumbersList.add(0);
+                allNumbersList.add(10);
+                allNumbersList.add(20);
+                allNumbersList.add(5);
+                allNumbersList.add(15);
+                allNumbersList.add(25);
+                System.out.println(allNumbersList);
+
+                List<Integer> doubledValuesList = allNumbersList.stream().map(I -> I*2).collect(Collectors.toList());
+
+                System.out.println(doubledValuesList);
+            }
+        }    
+
+        - Here map will do the mapping part of the modified element.
+        - Modifying will be done with the Function specified within map meothd
+
+
+.................................................................................................................................
+
+* Advantages of Stream
+
+    - Will make code more concise and shorter and efficient
+    - Make heavy use of lambda expressions
+    - ParallelStreams makes multi threaded operations very easy 
+
+* Stream pipeline
+
+    - A Stream pipeline consists of a source, followed by zero or more intermediate operations and a terminal operation
+
+* Stram operations,
+
+    1. Intermediate Operations
+    --------------------------------------
+        - Operations such as filter, map or sort which returns a stream so we can chain multiple intermediate operations
+
+        - Zero or more intermediate operations are allowed
+        - Order matters for large datasets : filter first, then sort or map and etc.
+        - For every large dataset, use ParallelStream to enable multiple threads
+        - Intermediate operations include,
+
+            anyMatch()
+            distinct()
+            filter()
+            findFirst()
+            flatMap()
+            map()
+            skip()
+            sorted()
+
+
+
+    2. Terminal Operations
+    --------------------------------------
+        - Such as forEach, collect or reduce are either void or return a non-stream result
+
+        - One terminal operation is allowed
+
+            forEach()
+            collect()
+
+        - forEach() applies the same function to each element
+        - collect() saves the elements into a collection
+        - Other options reduce the stream to a single summary element
+
+            count()
+            min()
+            max()
+            reduce()
+            summaryStatistics() // Only applied to integers
+        
+    import java.util.stream.*;
+
+    class Test {
+        public static void main(String[] args) {
+             // Creating an IntegerStram with values 1 to 9
+             IntStram.range(1,10).forEach(System.out::println);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+

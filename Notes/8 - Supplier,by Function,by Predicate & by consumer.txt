@@ -1,0 +1,261 @@
+________________________________________________________________________________________________________________________
+- Supplier,by Function,by Predicate & by consumer -
+------------------------------------------------------------------------------------------------------------------------
+
+* Quick Recap : 
+
+    - Predicate<T> :
+        Take some input and perform some conditional check and always returns a boolean value
+            public abstract boolean test(T t);
+
+    - Function<T,R> :
+        Take some input and perform some operation and return the result. result can be any type
+            public abstract R apply(T t);
+    
+    - Consumer<T> :
+        Accept some input perform some operation and does not return anything
+            public abstract void accept(T t);
+
+
+1. Supplier
+========================================================================================================================
+
+ * If we do not want to take any input and want just to supply (return) the required output (objects) then we should use
+   Supplier. Because Supplier does not take any argument as input and returns some output only.
+
+  * Prototype of the Supplier interface is as follows (R is the return parameter)
+
+    interface Supplier<R> {
+        public abstract R get();
+    }
+
+ * Example 1 : Supplier which supplies system date
+ .................................................................................................................................
+
+    import java.util.function.Supplier;
+    import java.util.Date;
+
+    class Test {
+        public static void main(String[] args) {
+            Supplier<Date> s = () -> new Date();
+            System.out.println(s.get());
+        }
+    }
+
+ * Example 2 : Supplier which supplies a random OTP (One Time Password (6 digits most of the time))
+ .................................................................................................................................
+
+    * Generation of a random number : 
+        - We can use Math.random()
+        - It is always going to generate a numebr between 0 and one. So the logic is
+            0<= generatedNumber <1
+        - Minimum possible value which could be generated is  0
+        - Maximum possible value which could be geneta 0.999999.... (but not 1 at all)
+        - Our requirement is to generate a number from 0 to 9. So the logic is 
+            Math.random() * 10
+        - So the minimum will be 0 and max will be 9.999...
+        - In order to get rid of the decimal points, the value is typecasted into into int type. So the logic is,
+            (int)(Math.Random()*10)
+
+    import java.util.function.Supplier;
+
+    class Test {
+        public static void main(String[] args) {
+
+            Supplier<String> otpSupplier = () -> {
+                String OTP = "";
+                for(int i=0; i<6: i++) {
+                    OTP+=(int)(Math.random()*10);
+                }
+                return OTP;
+            }; 
+
+            System.out.println(otpSupplier.get());
+            System.out.println(otpSupplier.get());
+            System.out.println(otpSupplier.get());
+            System.out.println(otpSupplier.get());
+            System.out.println(otpSupplier.get());
+        }
+    }
+
+ .................................................................................................................................
+
+ * Upto now we have covered :
+
+    Predicate<T>    ===> test(T t)
+    Function<T,R>   ===> apply(T t) 
+    Consumer<T>     ===> accept(T t)
+    Supplier<R>     ===> get()
+
+ * But here except supplier other functional interfaces accept only one type <T> parameter as the input
+
+ * Consider a situation where we need to pass two input parameters and do some process;
+    Ex : Check whether the sum of two given numbers are even or not
+
+ * Therefore, for thosae type of requirement we can use "Two Argument Functional Interfaces"
+
+
+2. BiPredicate<T,U>
+========================================================================================================================
+
+ * BiPredicate<T,U> is a functional interface which can accept two input arguments/parameters. All the others are the same like Predicate
+   and the only difference is that it can accept two input parameters
+
+ * Normal Predicate<T> can take only one input argument and perform some conditional check. But sometimes, our programming requirement is
+  to take imput arguments and perform some conditional check. For this requirement we should go for BiPredicate<T,U>
+
+ * BiPredicate<T,U> is exactly the same as Predicate<T> except that it will take two input arguments. Remainings are all the same.
+
+ * Prototype of BiPredicate<T,U> interface 
+
+    interface BiPredicate<T,U> {
+		public abstract boolean test(T t,U u);
+        // Remaining default and static methods are the same. chainging, inverting are also the same .and() .or() .negate()
+	}
+
+ * Legend
+        T = The type of the first argument to the function
+        U = The type of the second argument to the function
+
+
+ * Example 1 : Check whether the sum of two given numbers are even or not
+ .................................................................................................................................
+
+   import java.util.function.BiPredicate;
+
+   class Test {
+       public static void main(String[] args) {
+
+           BiPredicate<Integer,Integer> p = (a,b) -> (a+b)%2==0;
+
+           System.out.println(p.test(10,20)); // true
+           System.out.println(p.test(7,6)); // false
+       }
+   }
+
+
+3. BiFunction<T,U,R>
+========================================================================================================================
+
+ * Normat Function<T,R> functional interface is always goping to accept one input parameter, perform required peration and 
+   returns something.
+
+ * But if we want to pass two input parameters, do some processing and return something, then we should go for
+   BiFunction<T,U,R> functional interface. here U is the second parameter
+
+ * Prototype of BiFunction<T,U,R> functional interface
+
+    @FunctionalInterface
+    public interface BiFunction<T,U,R> {
+        public abstract R apply(T t,U u);
+        //default method .andThen() also there 
+    }
+
+ * Legend
+        T = The type of the first argument to the function
+        U = The type of the second argument to the function
+        R = The type of the result of the function
+
+
+ * Example 1 : Writting a function which accepts two parameters (Interger and String)  and returns an Employee object
+ .................................................................................................................................
+
+    import java.util.function.BiFunction;
+    import java.util.ArrayList;
+
+    class Employee {
+        int id;
+        String name;
+        public Employee(int id,String name) {
+            this.id=id;
+            this.name=name;
+        }
+    }
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Employee> employeeList = new ArrayList<Employee>();
+
+            //This acccepts two input parameters (onr Integer parameter and one String parameter) and returns an Employee object
+            BiFunction<Integer, String, Employee> f = (id,name) -> new Employee(id,name);
+
+            employeeList.add(f.apply(100,"Durga"));
+            employeeList.add(f.apply(200,"Ravi"));
+            employeeList.add(f.apply(300,"Shiva"));
+            employeeList.add(f.apply(400,"Kamal"));
+            employeeList.add(f.apply(500,"Pavan"));
+
+            for(Employee employee : employeeList) {
+                System.out.println("Employee ID : "+employee.id);
+                System.out.println("Employee Name : "+employee.name);
+                System.out.println();
+            }
+        }
+    }
+
+3. BiConsumer<T,U>
+========================================================================================================================
+
+ * Normal Consumer<T> accepts only one input argument and do some process and returns nothing.
+
+ * But if our requirement is to provide two input parameters and do some process without returning anything, then we    
+   should go for BiConsumer<T,U>
+
+* Prototype of BiConsumer<T,U> interface
+
+    @FunctionalInterface
+    public interface BiConsumer<T,U> {
+        public abstract void accept(T t, U u);
+    }
+
+ * Example 1 : 
+ .................................................................................................................................
+
+    import java.util.function.BiFunction;
+    import java.util.function.BiConsumer;
+    import java.util.ArrayList;
+    import java.util.List;
+
+    class Employee {
+        String name;
+        double salary;
+        public Employee(String name,double salary) {
+            this.name=name;
+            this.salary=salary;
+        }
+    }
+
+    class Test {
+        public static void main(String[] args) {
+            ArrayList<Employee> employeeList = new ArrayList<Employee>();
+            populate(employeeList); // Adding employees to the list
+
+            BiConsumer<Employee,Double> c = (employee,increment) -> employee.salary+=increment;
+
+            for(Employee employee : employeeList) {
+                c.accept(employee,500d);
+            }
+
+            for(Employee employee : employeeList) {
+                System.out.println(employee.name+" | "+employee.salary);
+            }
+        }
+
+        public static void populate(List<Employee> listToPopulate) {
+            listToPopulate.add(new Employee("Durga",6000d));
+            listToPopulate.add(new Employee("Shiva",4000d));
+            listToPopulate.add(new Employee("Kamal",3000d));
+            listToPopulate.add(new Employee("Ajith",100d));
+        }
+    }
+
+ - IMPORTANT
+
+    * There is no concept called BiSupplier as Supplier functional interface does not accept any arguments
+
+
+
+
+
+
+

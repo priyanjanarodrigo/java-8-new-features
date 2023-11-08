@@ -1,0 +1,400 @@
+________________________________________________________________________________________________________________________
+- Default method() & Static method() inside Interface -
+------------------------------------------------------------------------------------------------------------------------
+
+1. Interface related enhancements with respected to java versions
+========================================================================================================================
+
+ - Method related  :
+ -------------------------------------------------------------
+    * Until 1.7 version of Java, every method inside interface was always public and abstract
+      whether we are declaring or not
+
+        void m1();
+        public void m1();
+        abstract void m1();
+        public abstract void m1();
+
+    * All above method declarations were same inside an interface until 1.7 version
+
+    * In 1.8 version default methods and static methods were allowed inside an interface
+
+    * In 1.9 version, private methods are also allowed inside an interface
+
+ - Variable related  :
+ -------------------------------------------------------------
+    * Every variable present inside an interface is public static final
+
+    * No enhancements to the variables inside an interface even in the current latest version
+
+2. Default Methods | Virtual Extension Methods | Defender Methods
+========================================================================================================================
+
+ - If we want to add new methods to an interface without effecting implementation classes, then we should use 
+   Default methods (Also called Virtual Extension Methods or Defender Methods)
+
+- In default methods inside interfaces "default" keyword does not act as an access modfier which is scoped to the package level
+  but as a definition which implies that the method has a default implementation
+
+- Default methods can be used either directly (by default available to the implementation classes) or can be overriden inside 
+   the implementation class based on the requirement
+
+- While overriding the default method inside implementation class, compulsory we need use public access modifier only. Because, default
+  methods cannot be declared inside the classes. Because, within the class default is considered as an access modifire (within class "default")
+  acts as the access modifier whcih is scoped to the package level)
+
+ - Default methods are meant to be used inside interfaces but not inside classes
+
+ - Example scenario
+ ....................................................................................................................
+ 
+ interface I {
+     public void m1();
+     public void m2();
+
+     //public void m3(); 
+     /* 
+        If a new abstract method is added to the interface, then all 
+        the implementation classes will throw compile errors saying does not override abstract method
+     */
+
+     /*
+        Default methods allows us to add new methods to the interface without affecting the existing 
+        implementation classes. Code is going to compile without any issue if default methods are included
+        inside interfaces. Because default methods are already having their own implementation inside method body
+
+        We can use this default method inside implementation classes of the interface if required. But not mandatory
+        to be overriden
+
+        Implementation classes are not required to worry about the implementation of default methods as default methods
+        have their own implementations already
+     */
+     default void m3() {
+         System.out.println("Default method m3()");
+     }
+
+ }
+
+ class Test implements I{
+     public void m1(){ System.out.println("m1()");}
+     public void m2(){ System.out.println("m2()");}
+
+     public static void main(String[] args){
+		 Test t = new Test();
+         t.m3();
+		 
+		 Test100 t2 = new Test100();
+         t.m3();
+	 }
+ }
+
+ class Test1 implements I{
+     public void m1(){ System.out.println("m1()");}
+     public void m2(){ System.out.println("m2()");}
+ }
+
+ class Test2 implements I{
+     public void m1(){ System.out.println("m1()");}
+     public void m2(){ System.out.println("m2()");}
+ }
+
+ class Test3 implements I{
+     public void m1(){ System.out.println("m1()");}
+     public void m2(){ System.out.println("m2()");}
+ }
+
+ class Test100 implements I{
+     public void m1(){ System.out.println("m1()");}
+     public void m2(){ System.out.println("m2()");}
+ }
+
+ ....................................................................................................................
+
+ - Using default methods within implementation classes : 
+ -------------------------------------------------------------
+
+    - Example 1 : Accessing/using a default implementation of a default method
+
+        interface Interf{
+            default void m1() {
+                System.out.println("Default method m1() from interface");
+            }
+        }
+
+        class Test implements Interf {
+            public static void main(String[] args) {
+                Test t = new Test();
+                t.m1(); // // output : Default method m1() from interface
+            }
+        }
+
+    ....................................................................................................................
+
+    - Example 2 : If we are not satisfied with the default implementation we can follow this approacha and override the
+                  default method based on our requirement
+
+        interface Interf{
+            default void m1() {
+                System.out.println("Default method m1() from interface");
+            }
+        }
+
+        class Test implements Interf {
+
+            //Overriding the default method. While overriding the default method, compulsory we must use public access modifier only
+            public void m1() {
+                System.out.println("Custom implementation of default method");
+            }
+
+            /* If overriden as follows , we will get a compile time error saying 
+                modifier default not allowed here 
+                default void m1()
+                             ^
+                1 error
+            */
+            //default void m1() { }
+
+
+            public static void main(String[] args) {
+                Test t = new Test();
+                t.m1(); // output : Custom implementation of default method
+            }
+        }
+
+    ....................................................................................................................
+
+     - Example 3 : We cannot implement Object class methods as default methods, because Object class methods are by default available
+                   to every implementation class.
+
+        * Below example will not be compiled and will display a compile error as it tries to override Object class hashCode() method
+
+        interface Interf {
+            default void m1() {
+                System.out.println("Default method m1() from interface");
+            }
+
+            default int hashCode() {
+                return 10;
+            }
+        }
+
+        class Test implements Interf {
+            public static void main(String[] args) {
+
+            }
+        }
+
+        * Output : CE : 
+            Test.java:6: error: default method hashCode in interface Interf overrides a member of java.lang.Object
+                default int hashCode() {
+                            ^
+                1 error
+    ....................................................................................................................
+
+    - Example 4 :
+
+    * Does Java provide support for multiple inheritance ?
+        No java does not support multiple inheritance with respected to classes
+
+        class P1    class P2
+          (m1)         m1()
+           ^            ^
+            \          /
+             \        /
+              \      /
+               \    /
+                \  /
+                  |
+             Child class
+                 m1()
+
+    * When multiple parents contain same method, when it is accessed by the child method, then it becomes a confusion
+      (Diamond Access Problem, Ambiguity Problem) 
+
+    * Following is not going to compile as Java does not provide support for multiple inheritance respected to classes
+      (We cannot extend multiple )
+
+        class P1 {
+            public void m1() {
+                System.out.println("P1 method");
+            }
+        }
+        
+        class P2 {
+            public void m1() {
+                System.out.println("P2 method");
+            }
+        }
+
+        class Test extends P1,P2 {
+            public static void main(String[] args){
+                Test t = new Test();
+                t.m1();
+            }
+        }
+
+        * Output : CE
+
+            Test.java:13: error: '{' expected
+            class Test extends P1,P2 {
+                                ^
+            1 error
+    ....................................................................................................................
+
+    - Example 5 : Multiple inheritance with respected to default methods in interfaces
+
+     * Following situation is Test class is implementing two different interfaces whcih includes default methods with same signature
+       This piece of code is not going to work and displays a compile error 
+
+            interface Left {
+                default void m1() {
+                    System.out.println("interface Left m1() method");
+                }
+            }
+        
+            interface Right {
+                default void m1() {
+                    System.out.println("interface Right m1() method");
+                }
+            }
+
+            class Test implements Left,Right {
+                public static void main(String[] args) {
+
+                }
+            }
+
+     * Output :  CE : 
+        Test.java:13: error: class Test inherits unrelated defaults for m1() from types Left and Right
+            class Test implements Left,Right {
+            ^
+        1 error
+
+     ....................................................................................................................
+
+     * Solution for the above issue is to override the default method within the implementation class. Take a look at the 
+       below code.
+
+            interface Left {
+                default void m1() {
+                    System.out.println("interface Left m1() method");
+                }
+            }
+        
+            interface Right {
+                default void m1() {
+                    System.out.println("interface Right m1() method");
+                }
+            }
+
+            class Test implements Left,Right {
+
+                public void m1() {
+                    // This will provide custom implementation 
+                    // System.out.println("Our own m1() method"); 
+
+                    /*But if we really need to call Left interface m1() method, it can be done as follows*/
+                    //Left.super.m1(); // This will execute Left interface m1() method (Output :interface Left m1() method )
+
+                    /*If we need to call Right interface m1() method, it is also possible with the same approach as above*/
+                    Right.super.m1(); // This will execute Right interface m1() method (Output :interface Right m1() method )
+
+                    /* 
+                     Right.super.m1() or Left.super.m1() is not applicalbe anywhere other than the overriden common method
+                     with same signature (overriden m1() method). Otherwise we will get a compile time error 
+
+                        Test.java:14: error: not an enclosing class: Right
+                        static{Right.super.m1();}
+                                    ^
+                        1 error
+                    */
+                }
+
+                public static void main(String[] args) {
+                    Test t = new Test();
+                    t.m1();
+                }
+            }
+
+3. Static Methods
+========================================================================================================================
+
+* When considering about class vs interface
+ - Class is the costly component when comparted with the interface
+ - Interfaces are light weight but classes are heavy
+
+ * If we are having static methods, it is not recommended to go for a class based implementation as it is costly.
+   As static methods are nowhere related to objects we can provide interface based implementation as it is more light weight. 
+   Because from Java 1.8 onwards, interfaces can also contain static methods.
+
+ * If everything is static and nowhere related to objects, those can be put inside a interface which is lightweight.
+   (ex : common utility methods). Going for a class is more costly than using an interface
+
+ ....................................................................................................................
+
+ - Example 1 : declaration of static methods inside interfaces
+
+    interface Interf {
+        public static void m1() {
+            System.out.println("Interface static method m1()");
+        }
+    }
+
+    class Test implements Interf{
+        public static void main(String[] args) {
+            
+            /*
+             IMPORTANT POINTS ! 
+             -------------------------------------------------------------------------
+              - From java 1.8 version onwards, interfaces can have static methods
+
+              - static methods in interface (interface static methods) are not by default available to the implementation class.
+
+              - Interface static methods must be called with interface name only
+                    <InterfaceName>.<MethodName> 
+
+             - Whether it is an implementation class or non-implementation class, interface static method behaviour is
+               always the same. It's astatic method and nowhere related to class or objects
+
+             - Even if it is not the implementation class interface static method can be called
+            */
+            Interf.m1(); // Valid interface static method call
+
+            /*
+                Invalid ways (Not working)
+                
+                m1();
+                
+                Test.m1();
+
+                Test t=new Test();
+                t.m1();
+            */
+        }
+    }
+
+....................................................................................................................
+
+- Example 2 : Possibility of declaring main method inside interface
+
+    * Below is not a class but an interface which includes main method. This is possible from Java 1.8 version onwards
+      as it is possible to declare static methods inside interfaces. main method is also a static method.
+    
+    interface Interf {
+        public static void main(String[] args) {
+            System.out.println("Interface main method");
+        }
+    }
+
+    * This can be compiled and run just like a traditional java class
+      > javac Interf.java
+      > java Interf
+
+    * Output : Interface main method
+
+....................................................................................................................
+ 
+      
+
+
+

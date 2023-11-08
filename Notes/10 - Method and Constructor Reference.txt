@@ -1,0 +1,363 @@
+________________________________________________________________________________________________________________________
+- Method and Constructor Reference -
+------------------------------------------------------------------------------------------------------------------------
+
+* Method reference and constrcutor reference are alternatives to lambda expressions
+
+* This is done using double colon operator ::
+    ex :  Runnable r = new Test()::m1
+          MyInterface m = MyClass::new
+
+* Biggets advantage is code reusability 
+
+1. Method Reference
+========================================================================================================================
+
+ * Consider following example (normal lambda expression related implementation)
+
+    class Test {
+        public static void main(String[] args) {
+            //Implementing run() method 
+            Runnable r = () -> {
+                for(int i=0; i<10; i++) {
+                    System.out.println("Child Thread");
+                }
+            }; // Here ; is so important at the end of lambda expression
+
+            Thread t =new Thread(r);
+            t.start(); 
+
+            for(int i=0; i<10; i++) {
+                System.out.println("Main Thread");
+            }
+        }
+    }
+
+    - We have some alternative syntax for lambda expressions. Which are,
+        1. Method Reference
+        2. Constructor Reference
+
+    - If we want to write a lambda expression, compulsory we have to implement separately. But if it is method reference or
+      constructor reference we can reuse already existing code
+    
+    class Test {
+
+        public static void m1() {
+            for(int i=0; i<10; i++) {
+                System.out.println("Child Thread - 1");
+            } 
+        }
+
+        // Modifier of the refered method can be different from the modifier of the method which is implemented by refered method
+        private void m2(){
+            System.out.println("This is m2");
+        }
+
+        public static void main(String[] args) {
+            //Implementing run() method with method reference [refereing a static method]
+            Runnable r = Test::m1; // Runnable interface run method is refering Test class m1() method
+
+
+            // Refereing an instance methods
+            Runnable r2 = new Test()::m2; //Approach 1
+
+            Test testObj = new Test();
+            Runnable r3 = testObj::m2; //Approach 2
+
+            Thread t =new Thread(r);
+            t.start(); 
+
+            for(int i=0; i<10; i++) {
+                System.out.println("Main Thread -1 ");
+            }
+        }
+    }
+
+    - In above example, the job of child thread is already available inside m1(). 
+    
+    - Therefore, if Runnable functional interface refer that method instead of writting again then it is much easier.
+
+    - We are able to directly use method reference "Test::m1" to reuse an existing method without using a lambda expression.
+    
+    - So single abstract method - run() of functional interface Runnable, internally refers m1() method as the implementation.
+      This concept is nothing but method reference. 
+
+    - The biggets advantage of this is code reusability
+
+    - Runnable interface run method is refering Test class m1() method. So wherever run method is required, Test class m1 method is
+      refered
+
+    - We can refer both static and instance method
+        * static method reference syntax
+            ClassName::methodName
+        
+        * instance method reference syntax
+            ObjectReference::methodName
+                    or
+            new ClassName()::methodName
+
+
+    - IMPORTANT !!! -
+    -----------------
+        * When refering a method for implementing an abstract method in a functional interface, compulsory, the arguments of both abstract method
+         and refered method must be the same.Mathod names can be different but arguments must be the same;
+
+        * For example, in the above program we are implementing run() method of Runnable interface by refering m1() method of Test class
+            both run() method and m1() method do not take arguments but names are different
+                public void run();
+                public static void m1(){   
+                }
+
+        * Therefore, in method reference, argument types must be matched. except argument type, we do not need to worry about any other such as 
+          method name, return type or modifiers
+        
+        * In the case of method reference 
+            - different return types are allowed
+            - but the only restriction is that argument types must be matched otherwise we will get a compile time error
+
+        * Example 1 : 
+        .................................................................................................................................
+
+            class Test {
+                //private int m1(String myText){ return "Hello"; }
+                /* This implementation will give a compile time error as run method takes no arguments.Simple arguments are not mached
+
+                Test.java:13: error: incompatible types: invalid method reference
+                    Runnable r1 = testObj::m1;// run() method refering a private method with different return type
+                                  ^
+                        method m1 in class Test cannot be applied to given types
+                        required: String
+                        found: no arguments
+                        reason: actual and formal argument lists differ in length
+                    1 error                 
+                */
+
+                // Modifier is different from interface method
+                private int m1(){
+                    for(int i=0; i<5; i++) {
+                        System.out.println("Child Thread -1 ");
+                    }
+                    return 0;
+                }
+
+                public static void main(String[] args) {
+
+                    Test testObj = new Test();
+                    Runnable r1 = testObj::m1;// run() method refering a private method with different return type
+
+                    Thread t =new Thread(r1);
+                    t.start(); 
+
+                    for(int i=0; i<5; i++) {
+                        System.out.println("Main Thread -1 ");
+                    }
+                }
+            }
+
+
+        * Example 2 : 
+        .................................................................................................................................
+
+        @FunctionalInterface
+        interface Interf {
+            public void add(int a,int b);
+        }
+
+        class Test {
+
+            public void sum(int x, int y) {
+                System.out.println("The sum : "+(x+y));
+            }
+
+            public static void main(String[] args) {
+                Interf i = (a,b) -> System.out.println("The sum : "+(a+b)); // if a+b is not enclosed bu braces then it will ont be added but concatinated as a String
+                i.add(10,20);
+
+                Interf i2 = new Test()::sum; // Here only method name is defined but not the arguments
+                i2.add(4,2); // Arguments are provided when the abstract method is called. functional interface add method is refering Test class sum method
+            }
+        }
+
+        * When to use method reference and lambda expressions 
+            - If the implementation is already available, then it is better to go for method reference
+            - If the implementation is not available already, then it is better to go for lambda expressions
+
+
+2. Constructor Reference
+========================================================================================================================
+
+ * Even constructor reference is also possible with :: operator
+    Test::new  - This is constructor reference
+
+    ClassName::new 
+
+ * Here also compulsory the interface abstract method and constructor arguments must be matched
+
+ * When we should go for constructor reference
+    - When the functional interface abstract method returns an object 
+    
+        * Example 1 : Constrcutor reference basic example
+        .................................................................................................................................
+        
+            class Sample {
+                public Sample(){
+                    System.out.println("Sample class default constructor called");
+                }
+
+                public Sample(int x,String y) {
+                    System.out.println("Sample class parameterized constructor called with "+x+" and "+y);
+                }
+            }
+
+            interface Interf {
+                public Sample get();
+            }
+
+            class Test {
+                public static void main(String[] args) {
+
+                    /*
+                    Whenever we are trying to implement get() method in Interf, it should return a Sample class object
+                    */
+                    Interf i = Sample::new; // get method of interface Interf, refers Sample class constructor
+                    
+                    // If we want to get a sample object we can call i.get(0 method). i.get() internally refers Sample::new (constructor)
+                    Sample sampleObj = i.get();
+
+                    //In this case, Interf interface get() method refers Sample class default constructor
+                    Sample sampleObj2 = i.get();
+                    Sample sampleObj3 = i.get();
+                    Sample sampleObj4 = i.get();
+
+                    //Sample sampleObj5 = i.get(1,"Hellp"); // Compile Error because of arguments mismatch between get metho and constructor
+                }
+            }
+
+        * Example 2 : Refering a parameterized constructor with arguments by a functional interface abstract method 
+        .................................................................................................................................
+
+            class Sample {
+                public Sample(){
+                    System.out.println("Sample class default constructor called");
+                }
+
+                public Sample(int x,String y) {
+                    System.out.println("Sample class parameterized constructor called with "+x+" and "+y);
+                }
+            }
+
+            interface Interf {
+                public Sample get(int number, String value);
+            }
+
+            class Test {
+                public static void main(String[] args) {
+                    Interf i = Sample::new;
+                    
+                    /* 
+                     Parameterized constructor is refferd. Arguments are matched. Only the corresponding constructor is called
+                     In this case parameterized constructor is called but not default one
+                     
+                     Internally i.get calls Sample class constrcutor which can take an int and a String argument
+                     (Always calls matched arguments constructor)
+                    */
+                    i.get(1,"Hello"); 
+                    i.get(2,"Durga"); 
+                }
+            }
+
+
+        * Example 3 : Without constructor reference or lambda expressions vs with lambda expressions vs With constructor reference
+        .................................................................................................................................
+
+        - Without constructor reference or lambda expressions :
+        --------------------------------------------------------
+            class Student {
+                String name;
+                int rollNo;
+                int marks;
+                int age;
+
+                public Student(String name,int rollNo,int marks,int age) {
+                    this.name=name;
+                    this.rollNo=rollNo;
+                    this.marks=marks;
+                    this.age=age;
+                }
+            }
+
+            interface Interf{
+                public Student get(String name,int rollNo,int marks,int age);
+            }
+
+            class InterfImpl implements Interf {
+				 public Student get(String name,int rollNo,int marks,int age){
+					Student stdObj = new Student(name,rollNo,marks,age);
+                    return stdObj;
+				 }
+			}
+
+            class Test {
+                public static void main(String[] args) {
+                    Interf i = new InterfImpl();
+                    Student s1= i.get("Durga",1,100,26);
+                }
+            }
+
+        - With lambda expressions :
+        --------------------------------------------------------
+            class Student {
+                String name;
+                int rollNo;
+                int marks;
+                int age;
+
+                public Student(String name,int rollNo,int marks,int age) {
+                    this.name=name;
+                    this.rollNo=rollNo;
+                    this.marks=marks;
+                    this.age=age;
+                }
+            }
+
+            interface Interf{
+                public Student get(String name,int rollNo,int marks,int age);
+            }
+
+            class Test {
+                public static void main(String[] args) {
+                    Interf i = (name,rollNo,marks,age) -> new Student(name,rollNo,marks,age);
+                    Student s1= i.get("Durga",1,100,26);
+                }
+            }
+
+        - With constructor reference :
+        ---------------------------------
+            class Student {
+                String name;
+                int rollNo;
+                int marks;
+                int age;
+
+                public Student(String name,int rollNo,int marks,int age) {
+                    this.name=name;
+                    this.rollNo=rollNo;
+                    this.marks=marks;
+                    this.age=age;
+                }
+            }
+
+            interface Interf{
+                public Student get(String name,int rollNo,int marks,int age);
+            }
+
+            class Test {
+                public static void main(String[] args) {
+                    Interf i = Student::new;
+                    Student s1= i.get("Durga",1,100,26);
+                }
+            }
+
+        * For implementing above example, constructor reference is the best choice. it is very simplified
+        * It is better to go for lambda exressions if method reference or constructor reference 
+        * If lambda expressions is also not possible, then we have to use traditional implementation approach

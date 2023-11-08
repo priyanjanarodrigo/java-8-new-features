@@ -1,0 +1,564 @@
+________________________________________________________________________________________________________________________
+- Additional Functional Interfaces -
+------------------------------------------------------------------------------------------------------------------------
+
+ * Quick Recap : 
+    
+    - Previously discussed pre-defined functional interfaces
+
+        Predicate<T>    =======> public abstract boolean test(T t); 
+            .and(Predicate <super T> other) , .or(Predicate <super T> other) , negate() are default methods
+
+        Function<T,R>   =======> public abstract R apply(T t);
+        Consumer<T>     =======> public abstract void accept(T t);
+
+        - The above 3 can take only one input argument
+
+        Supplier<R>     =======> public abstract R get();
+
+        BiPredicate<T,U>    =======> public abstract boolean test(T t,U u);
+            .and(Predicate <? super T,? super U> other) , .or(Predicate <? super T,? super U> other) , negate() are default methods
+
+        BiFunction<T,U,V>   =======> public abstract R apply(T t, U u);
+            .andThen(Function <? super R, ? extends V> after) is a default method
+
+        BiConsumer<T,U>     =======> public abstract accept(T t,U u);
+             .andThen(BiConsumer <? super R, ? extends V> after) is a default method
+
+        - The above 3 can take two input arguments
+
+        - There is no BiSupplier as Supplier is meant to supply/ return some output only. Not to accept input parameter
+
+
+ * Example 1 : Write a program to check whether a given int value is even or not ?
+ .................................................................................................................................
+
+    import java.util.function.Predicate;
+
+    class Test {
+        public static void main(String[] args){
+            Predicate<Integer> p = i -> i%2==0;
+            System.out.println("is even number : "+p.test(10));
+        }
+    }
+
+    - Considering about the above program, type value of the predicate must be an object type (ex : wrapper type Integer).
+      
+    - But within the print statement we are providing just a primitive int value which is 10. So in order to pass it to the predicate 
+      it has to be converted into it's wrapper type. int ---> Integer
+
+    - Then according to above example, this wrapper type Integer will be converted again into a primitive int within the lambda expression
+      body in order to perform the comparison and returns true or false
+
+    - So in this particular example following internal conversions are happening automatically,
+
+        int --> Integer --> int
+
+    - Breakdown of conversions
+        int --> Integer
+         - This is called "Autoboxing". Autoboxing is automatic conversion from primitive to wrapper object
+
+        Integer --> int
+            - This is called "Auto Unboxing". Auto unboxing is automatic conversion from wrapper object to primitive type
+
+    - So even if we are getting the expected boolean output, there is a big performance impact
+
+
+ * Example 2 : 
+ .................................................................................................................................
+
+    import java.util.function.Predicate;
+
+    class Test {
+        public static void main(String[] args){
+
+            int[] x = { 0,5,10,15,20,25,30 };
+            Predicate<Integer> p = i -> i%2==0;
+
+            for(int x1 : x) {
+                if(p.test(x1)) {
+                    System.out.println(x1 +" is a even number");
+                }
+            }
+        }
+    }
+    
+    - In above example autoboxing is happening for 7 times (7 times int --> Integer)
+
+    - And also auto unboxing is happening for 7 times (7 times Integer --> int)
+
+    - This is a big performance issue if we observe performance and time complexity
+
+    - In order to overcome this problem, we can use primitive version of functional interfaces
+
+
+1. Primitive versions of functional interfaces
+========================================================================================================================
+
+ 1.1  Primitive versions of Predicate types
+ =======================================================================================================================
+
+    - IntPredicate instead of Predicate<Integer>
+
+    - IntPredicate does not need to specify our type parameter explicitly within <> angular brackets. we can call it as follows,
+        IntePredicate p = i -> i%2==0;
+
+    - and(), or() and negate() default methods are also available just like in Predicate 
+
+    - This resolves the performance issue related to autoboxing and auto unboxing if primitive value is passed as the test method
+      argument. Take a look at the example below. In that example, autoboxing is not happening as well as auto unboxing ia not happening.
+
+        * Example : 
+        .................................................................................................................................
+
+            import java.util.function.IntPredicate;
+
+            class Test {
+                public static void main(String[] args) {
+
+                    int[] x = { 0,5,10,15,20,25,30 };
+                    IntPredicate p = i -> i%2==0;
+
+                    for(int x1 : x) {
+                        if(p.test(x1)) {
+                            System.out.println(x1 +" is a even number");
+                        }
+                    }
+                }
+            }
+
+    * Just like IntPredicate, there are some other primitive predicates available. So primitive predicates are, 
+
+        1. IntPredicate    ===> for primitive int values
+            test(int value) method receives a int value. and(), negate() and or() default methods are also available
+
+        2. DoublePredicate ===> for primitive double values
+            test(double value) method receives a double value. and(), negate() and or() default methods are also available
+
+        3. LongPredicate   ===> for primitive long values
+            test(long value) method receives a long value. and(), negate() and or() default methods are also available
+
+        * IMPORTANT 
+            Two argument primitive predicates are not there. Therefore we have to use normal BiPredicate<T,U> which accepts object types.
+            There is no concept called BiIntPredicate or etc.
+
+
+ 1.2  Primitive versions of Function types
+ =======================================================================================================================
+
+ * Example 1 : 
+ .................................................................................................................................
+
+    import java.util.function.Function;
+
+    class Test {
+        public static void main(String[] args) {
+
+            /* 
+                Normal approach (Non Primitive version). Autoboxing and auto unboxing is happening.
+                int --> Integer (accepted input parameter type) --> int --> Integer (returned parameter type)
+                [ Autoboxing --> Autounboxing --> Autoboxing ] causes performance issues
+            */
+            Function<Integer,Integer> f = i -> i*i; 
+            System.out.println(f.apply(4)); 
+        }
+    }
+
+    .................................................................................................................................
+
+    1. DoubleFunction<R>
+        - Can take double as the input type parameter but return type can be any type. 
+            apply(double value)
+
+    2. IntFunction<R>
+        - Can take int as the input type parameter but return type can be any type. 
+            apply(int value) 
+
+    3. LongFunction<R> 
+        - Can take long as the input type parameter but return type can be any type. 
+            apply(long value) 
+        
+    .................................................................................................................................
+
+    4. DoubleToIntFunction
+        - input type is double and returns an int value
+        - available abstract method is : 
+            applyAsInt(double value)
+
+    5. DoubleToLongFunction
+        - input type is double and returns an long value
+        - available abstract method is :
+            applyAsLong(double value)
+
+    6. IntToDoubleFunction
+        - input type is int and returns a double value
+        - Available method is :
+            applyAsDouble(int value)
+
+    7. IntToLongFunction
+        - input type is int and returns a long value
+        - Available method is : 
+            applyAsLong(int value)
+
+    8. LongToIntFunction
+        - input type is long and returns an int value
+        - Available method is : 
+            applyAsInt(long value)
+
+    9. LongToDoubleFunction
+        - input type is long and returns a double value
+        - Available method is : 
+            applyAsDouble(long value)
+
+    * IMPORTANT
+        - There are no Bi Functions available to accept two input parameters for above (1 to 9) as well
+
+    .................................................................................................................................
+    
+    10. ToIntFunction<T>
+            - Input parameter type can be any type but returns only a primitive int value.
+            - Available method is 
+                - applyAsInt(T t);
+
+    11. ToLongFunction<T>
+            - Input parameter type can be any type but returns only a primitive long value
+            - Available method is 
+                - applyAsLong(T t);
+
+    12. ToDoubleFunction<T>
+            - Input parameter type can be any type but returns only a primitive double value
+            - Available method is 
+                - applyAsDouble(T t);
+
+    13. ToIntBiFunction<T,U>
+            - Accepts two Input parameters of any type but returns only a primitive int value.
+            - Available method is 
+                - applyAsInt(T t, U u);
+
+    14. ToLongBiFunction<T,U> 
+            - Accepts two Input parameters of any type but returns only a primitive long value.
+            - Available method is 
+                - applyAsLong(T t, U u);           
+
+    15. ToDoubleBiFunction<T,U> 
+            - Accepts two Input parameters of any type but returns only a primitive double value.
+            - Available method is 
+                - applyAsDouble(T t, U u);        
+
+    * IMPORTANT
+        - No chaining methods (andThen(),compose()) are available for above (1 to 15) primitive types related Function types 
+
+ * Example 2 : Using primitive type related functions - Situation 1
+ .................................................................................................................................
+
+    import java.util.function.IntFunction;
+
+    class Test {
+        public static void main(String[] args) {
+
+            IntFunction<Integer> f = i -> i*i;
+            System.out.println(f.apply(10));
+
+            //Even here we at last ont autounboxing will occur as we do not have control over return type (int --> Integer)
+        }
+    }
+
+ * Example 3 : Using primitive type related functions - Situation 2
+ .................................................................................................................................
+
+    import java.util.function.ToIntFunction;
+
+    class Test {
+        public static void main(String[] args) {
+
+            ToIntFunction<String> f = s -> s.length();
+            System.out.println(f.applyAsInt("Durga"));
+
+            /*
+                for this situation the best option is to have control overe return type. As we are putting a String input parameter
+                and getting the length of it, there is no autoboxing occured. And also as we are by default returning a primitive int
+                without converting it to Integer type, again autounboxing is not occured.
+
+                Therefore performance is getting increased rather than using some other Function
+            */
+        }
+    }
+
+ * Example 3 :Finding the square root of a given number - Situation 3
+ .................................................................................................................................
+
+    import java.util.function.IntToDoubleFunction;
+
+    class Test {
+        public static void main(String[] args) {
+            IntToDoubleFunction f = i -> Math.sqrt(i);
+            System.out.println(f.applyAsDouble(10));
+            /*
+                This solution is the best fit as we are always inserting an int value and square root is always returned
+                as a double value.We have control over both input parameter type and return type
+
+                IntToDoubleFunction is the best fit rather than Function<Integer,Double> which consumes more performance
+
+                No internal autoboxing or autounboxing is occured
+            */
+        }
+    }
+
+ 1.3  Primitive versions of Consumer types
+ =======================================================================================================================
+
+    1. IntConsumer 
+        - Accepts a primitive int as the parameter and nothing is returned
+        - Available methods 
+            - public abstract void accept(int value)
+            - default IntConsumer method andThen(IntConsumer after) is also there . Accepts only a IntConsumer not other type of consumers
+
+    2. DoubleConsumer 
+        - Accepts a primitive double as the parameter and nothing is returned
+        - Available methods 
+            - public abstract void accept(double value)
+            - default DoubleConsumer method andThen(DoubleConsumer after) is also there . Accepts only a IntConsumer not other type of consumers
+
+    3. LongConsumer 
+        - Accepts a primitive long as the parameter and nothing is returned
+        - Available methods 
+            - public abstract void accept(long value)
+            - default LongConsumer method andThen(LongConsumer after) is also there . Accepts only a IntConsumer not other type of consumers
+
+    .................................................................................................................................
+
+    4. ObjIntConsumer<T>
+        - Accepts two input parameters. First parameter can be any type but second input parameter must be a primitive int
+        - This is something like BiConsumer but here we do not have the control over second input parameter
+        - Available method
+            public abstract void accept(T t,int value)
+        - andThen() is not there for this interface.  
+
+    5. ObjDoubleConsumer<T>
+        - Accepts two input parameters. First parameter can be any type but second input parameter must be a primitive double
+        - This is something like BiConsumer but here we do not have the control over second input parameter
+        - Available method
+            public abstract void accept(T t,double value)
+        - andThen() is not there for this interface
+
+    6. ObjLongConsumer<T>
+        - Accepts two input parameters. First parameter can be any type but second input parameter must be a primitive long
+        - This is something like BiConsumer but here we do not have the control over second input parameter
+        - Available method
+            public abstract void accept(T t,long value)
+        - andThen() is not there for this interface
+
+
+ 1.4  Primitive versions of Supplier types
+ ======================================================================================================================
+
+    1. BooleanSupplier
+        - Takes no input parameters and always returns a primitive boolean value
+        - Available method 
+            public abstract long getAsBoolean()
+
+    2. IntSupplier
+        - Takes no input parameters and always returns a primitive int value 
+        - Available method 
+           public abstract long getAsInt()
+
+    3. LongSupplier
+        - Takes no input parameters and always returns a primitive long value 
+        - Available method 
+            public abstract long getAsLong()
+
+    4. DoubleSupplier
+        - Takes no input parameters and always returns a primitive double value 
+        - Available method 
+            public abstract long getAsDouble()           
+
+
+ 1.5 UnaryOperator
+ ======================================================================================================================
+
+ 1.5.1 UnaryOperator<T>
+ --------------------------------------------------------------
+
+    - Consider the following scenario
+
+    - Here the function f is taking an Integer input parameter and returning an Integer output. Both input and output are the same type.
+      In order to do this more internal performance is required due to autoboxing and autounboxing.
+
+        int --> Interger (autoboxing as input parameter) --> int --> Integer (autounboxing as output parameter)
+
+    .................................................................................................................................
+        import java.util.function
+
+        class Test {
+            public static void main(String[] args) {
+                Function<Integer,Integer> f = i -> i*i;
+                System.out.println(f.apply(2));
+            }
+        }
+    .................................................................................................................................
+
+    - Therefore, in the case where both input and output type is the same in a function, there is a special function to be used.
+      It is called UnaryOperator<T>
+    
+    1. UnaryOperator<T>
+        - If both the input and output are the same type, then we should go for UnaryOperator<T> which extends Function<T,T>
+        - UnaryOperator is a child of Function
+        - Prototype   
+
+            @FunctionalInterface
+            public interface UnaryOperator<T> extends Function<T,T> {
+
+            }
+            
+        - In UnaryOperator both input and output types are the same
+        - This interface is extending from Function. and therefore apply(), andThen() and compose() methods are available  
+    
+        - Example : 
+
+            import java.util.function.UnaryOperator;
+
+            class Test {
+                public static void main(String[] args) {
+                    UnaryOperator<Integer> f = i -> i*i; // Both input and output type are the same here (Integer)
+                    System.out.println(f.apply(2));
+                }
+            }
+
+ 1.5.2 Primitive types of UnaryOperator
+ --------------------------------------------------------------
+
+    1. IntUnaryOperator
+        - Both the input and return type are primitive int
+        - Available method 
+            public abstract int applyAsInt(int operand)  
+            
+        - default methods andThen(), conpose() and static method identity() are also available
+
+            import java.util.function.IntUnaryOperator;
+
+            class Test {
+                public static void main(String[] args) {
+                    IntUnaryOperator f = i -> i*i; // No typecasting, autoboxing or autounboxing as this is primitive related
+                    System.out.println(f.applyAsInt(10));
+                }
+            }
+		
+		- static method identity() in IntUnaryOperator [ public static IntUnaryOperator identity() ]
+		  it returns a IntUnaryOperator that always returns it's input argument. we can use it to return
+          the input parameter as output directly without manually implementing
+			
+		    import java.util.function.IntUnaryOperator;
+			class Test {
+				public static void main(String[] args){
+					IntUnaryOperator f = IntUnaryOperator.identity(); // We do not need to manually implement to return the input argument itself
+					System.out.println(f.applyAsInt(2)); // returns the input parameter as output
+				}
+			}
+		
+		
+    2. DoubleUnaryOperator
+        - Both the input and return type are primitive double
+        - Available method 
+            public abstract double applyAsDouble(double operand)  
+
+        - default methods andThen(), conpose() and static method identity() are also available
+
+		- static method identity() in DoubleUnaryOperator [ public static DoubleUnaryOperator identity() ]
+		  it returns a DoubleUnaryOperator that always returns it's input argument. we can use it to return
+          the input parameter as output directly without manually implementing
+
+
+    2. LongUnaryOperator
+        - Both the input and return type are primitive long
+        - Available method 
+            public abstract long applyAsDouble(long operand) 
+
+        - default methods andThen(), conpose() and static method identity() are also available
+
+		- static method identity() in LongUnaryOperator [ public static LongUnaryOperator identity() ]
+		  it returns a LongUnaryOperator that always returns it's input argument. we can use it to return
+          the input parameter as output directly without manually implementing
+    
+
+ 1.6 BinaryOperator
+ ======================================================================================================================
+
+ 1.6.1 BinaryOperator<T>
+ --------------------------------------------------------------
+
+    - I there are two input parameters of the same type and output is also the same type, then we should go for BinaryOperator. This is
+      kind of a Bi operator for UnaryOperator. because unary operators accept only one input parameter but Binary operator accepts two input
+      parameters of the same type and output is also the same type
+
+    - Represents and operation upon two p[erands of the same type, producing the result of the same type as the operands (API definition)
+
+    - Prototype
+        @FunctionalInterface
+        public interfaceBinaryOperator<T> extends BiFunction<T,T,T> {
+
+        }
+
+    - It is the child of BiFunction<T,T,T> functional interface.
+
+    - Available methods
+        apply(), andThen() methods are inherited from BiFunction super interface 
+            ex : public T apply(T,T)
+        and also there are two dpecific staic methods to BinaryOperator which are
+            - static <T> BinaryOperator<T> maxBy(Comparator<? super T> comparator)
+            - static <T> BinaryOperator<T> minBy(Comparator<? super T> comparator)
+            * Find out more
+
+    - example 
+
+        import java.util.function.BinaryOperator;
+        import java.util.function.BiFunction;
+
+        class Test {
+            public static void main(String[] args) {
+                BiFunction<String,String,String> bf = (s1,s2) -> s1+s2;
+                System.out.println(bf.apply("Hello ","World"));
+
+                // Replacing BiFunction and simplifying the code with BinaryOperator
+                BinaryOperator<String> f = (s1,s2) -> s1+s2;
+				System.out.println(f.apply("Hello ","World"));
+            }
+        }
+
+
+ 1.6.2 Primitive types of BinaryOperator
+ --------------------------------------------------------------
+
+    1. IntBinaryOperator
+
+        - IntBinaryOperator can accept two primitive int parameters and returns a primitive int. Performance is also high as    
+          there are no internal autoboxing and autounboxing. 
+        - We can use IntBinaryOperator with increased performance rather than using BinaryOperator<Interger> if our input parameters and
+          return type is primitive int type
+        - Applicable method : applyAsInt(int value)
+        - Example :
+            import java.util.function.IntBinaryOperator;
+
+            class Test {
+                public static void main(String[] args) {
+                    IntBinaryOperator f = (i1,i2) -> i1+i2;
+                    System.out.println(f.applyAsInt(1,2));
+                }
+            }
+
+    2. DoubleBinaryOperator
+
+        - DoubleBinaryOperator can accept two primitive double parameters and returns a primitive double. Performance is also high as    
+          there are no internal autoboxing and autounboxing. 
+        - We can use DoubleBinaryOperator with increased performance rather than using BinaryOperator<Double> if our input parameters and
+          return type is primitive double type
+        - Applicable method : applyAsDouble(double value)
+
+    3. LongBinaryOperator
+
+        - LongBinaryOperator can accept two primitive long parameters and returns a primitive long. Performance is also high as    
+          there are no internal autoboxing and autounboxing. 
+        - We can use LongBinaryOperator with increased performance rather than using BinaryOperator<Long> if our input parameters and
+          return type is primitive long type
+        - Applicable method : applyAsLong(long value)
+
+  
